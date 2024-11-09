@@ -125,7 +125,7 @@ else:
     years_list = years_series.to_list()
     # Save topic info
     topic_info = model.get_topic_info()
-    topic_info_path = os.path.join(r"C:\Users\lclee\OneDrive - Istituto Universitario Europeo\PhD\two_thirds_submission\Github_replication_files_by_paper\Paper_1\code\.py\figures", "topic_info_new.xlsx")
+    topic_info_path = os.path.join(r"C:\Users\lclee\OneDrive - Istituto Universitario Europeo\PhD\two_thirds_submission\Github_replication_files_by_paper\website\cb_speeches_website", "topic_info_new.xlsx")
     topic_info.to_excel(topic_info_path, index=False)
     print(f"Topic info saved to {topic_info_path}")
     # Save model
@@ -133,12 +133,7 @@ else:
 
 ### Step 4: merging with other datasets
 
-if os.path.exists(model_path):
-    print("Loading existing topic model...")
-    model = BERTopic.load(model_path)
-else:
-        # Step 1: Process BERTopic results
-    print("Processing BERTopic results...")
+
 topics = model.topics_
 probabilities = model.probabilities_
 
@@ -158,172 +153,123 @@ all_speeches['year'] = all_speeches['year'].astype(int)
 all_speeches['date'] = pd.to_datetime(all_speeches['date'])
 all_speeches['quarter'] = all_speeches['date'].dt.to_period('Q')
 
-        # Step 3: Separate ECB and non-ECB data
-        print("Separating ECB and non-ECB data...")
-        ecb_data = all_speeches[all_speeches['central_bank'] == 'european central bank']
-        non_ecb_data = all_speeches[all_speeches['central_bank'] != 'european central bank']
-        del all_speeches
-        gc.collect()
 
-        # Step 4: Process additional variables
-        print("Processing additional variables...")
-        additional_vars = ['spread', 'ro_cbie_index', 'unemployment_rate', 'diff_unemployment', 'i_minus_g', 'gdp_nominal_growth', 'gdp_real_growth', 'diff_inflation', 'gdp_deflator', 'hicp', 'output_gap_pgdp', 'structural_balance_pgdp', 'total_expenditure_pgdp', 'government_debt_pgdp', 'primary_balance_pgdp', 'government_debt', 'gdp_real_ppp_capita', 'number_of_sentences', 'audience', 'position', 'speaker', 'type_of_text']
-        numeric_vars = non_ecb_data[additional_vars].select_dtypes(include=[np.number]).columns
-        mean_values = non_ecb_data.groupby('quarter')[numeric_vars].mean().reset_index()
+# Load the uploaded Excel file
+file_path = r'C:\Users\lclee\OneDrive - Istituto Universitario Europeo\PhD\two_thirds_submission\Github_replication_files_by_paper\website\cb_speeches_website\topic_info_new.xlsx'
+topic_data = pd.read_excel(topic_info_path)
 
-        # Step 5: Merge ECB data with mean values
-        print("Merging ECB data with mean values...")
-        ecb_data_with_means = pd.merge(ecb_data, mean_values, on='quarter', suffixes=('', '_mean'))
-        for var in numeric_vars:
-            ecb_data_with_means[var] = ecb_data_with_means[f'{var}_mean']
-            ecb_data_with_means.drop(f'{var}_mean', axis=1, inplace=True)
-
-        # Step 6: Combine data and aggregate
-        print("Combining data and aggregating...")
-        final_df = pd.concat([ecb_data_with_means, non_ecb_data])
-        del ecb_data_with_means, non_ecb_data, ecb_data
-        gc.collect()
-
-        topic_columns = [col for col in final_df.columns if col.startswith('Topic_')]
-        columns_to_aggregate = numeric_vars.tolist() + topic_columns
-        
-        topic_proportions_final = pd.DataFrame()
-        for chunk in process_in_chunks(final_df):
-            chunk_result = chunk.groupby(['quarter', 'central_bank'])[columns_to_aggregate].mean().reset_index()
-            topic_proportions_final = pd.concat([topic_proportions_final, chunk_result])
-            del chunk_result
-            gc.collect()
-        
-        topic_proportions_final['quarter'] = pd.to_datetime(topic_proportions_final['quarter'].astype(str)).dt.to_period('Q')
-        del final_df
-        gc.collect()
-
-        # Step 7: Merge and rename topics NEW for topicmodel1
-        print("Merging and renaming topics...")
-            #Please note that the topics are re-assigned using ChatGPT 4o. The categories are obtained through an iterative process with human interaction. The assignment is manually validated.
-        topic_merging = {
-            'Monetary_Policy_Central_Banking': ['Topic_0', 'Topic_12', 'Topic_16', 'Topic_17', 'Topic_19', 'Topic_21', 'Topic_24'],
-            'Economic_Analysis_Indicators': ['Topic_4', 'Topic_12', 'Topic_13', 'Topic_20', 'Topic_22', 'Topic_27'],
-            'Financial_Markets_Integration': ['Topic_10', 'Topic_11', 'Topic_18', 'Topic_29', 'Topic_30', 'Topic_33'],
-            'Banking_Regulation_Supervision': ['Topic_6', 'Topic_7', 'Topic_25', 'Topic_26', 'Topic_34', 'Topic_38'],
-            'Digital_Finance_Innovation': ['Topic_2', 'Topic_28', 'Topic_36', 'Topic_40'],
-            'International_Economics_Exchange_Rates': ['Topic_18', 'Topic_23', 'Topic_35'],
-            'Crisis_Management_Stability': ['Topic_8', 'Topic_9', 'Topic_32', 'Topic_37', 'Topic_41'],
-            'Sustainable_Finance_Climate': ['Topic_5', 'Topic_31'],
-            'Payment_Systems_Cash': ['Topic_15', 'Topic_14', 'Topic_39', 'Topic_43'],
-            'National_Economy': ['Topic_1', 'Topic_3', 'Topic_42', 'Topic_44']
-        }
-
-        for new_topic, old_topics in topic_merging.items():
-            topic_proportions_final[new_topic] = topic_proportions_final[old_topics].sum(axis=1)
-
-            # Calculate proportions
-        sum_of_topics = topic_proportions_final[list(topic_merging.keys())].sum(axis=1)
-        for topic in topic_merging.keys():
-            topic_proportions_final[f'{topic}_Proportion'] = topic_proportions_final[topic] / sum_of_topics
-            topic_proportions_final.drop(columns=[topic], inplace=True)
-
-        topic_proportions_final.rename(columns={f'{topic}_Proportion': topic for topic in topic_merging.keys()}, inplace=True)
-        topic_proportions_final.drop(columns=[f'Topic_{i}' for i in range(44)], inplace=True)
-        gc.collect()
-
-        # Step 8: Process Eurobarometer data
-        print("Processing Eurobarometer data...")
-        eurobarometer = pd.read_stata(eurobarometer_path)
-        eurobarometer['year'] = pd.to_datetime(eurobarometer['year'], format='%Y').dt.year
-
-        def generate_quarters(year):
-            return [pd.Period(f"{year}-Q{q}") for q in range(1, 5)]
-
-        quarterly_eurobarometer = pd.DataFrame()
-        for _, row in eurobarometer.iterrows():
-            chunk_result = pd.DataFrame({
-                'year': row['year'],
-                'quarter': generate_quarters(row['year']),
-                'central_bank': row['central_bank'],
-                **{col: row[col] for col in eurobarometer.columns if col not in ['year', 'central_bank']}
-            })
-            quarterly_eurobarometer = pd.concat([quarterly_eurobarometer, chunk_result])
-
-        quarterly_eurobarometer = quarterly_eurobarometer.reset_index(drop=True)
-
-
-        # Step 10: Process and merge Google Trends data
-        print("Processing and merging Google Trends data...")
-        google_trends = pd.read_csv(os.path.join(google_trends_path, 'ecb_trends_quarterly.csv'))
-        
-        print(f"Google Trends columns: {google_trends.columns}")
-        print(f"Number of columns: {len(google_trends.columns)}")
-        
-        if 'Quarter' not in google_trends.columns:
-            raise ValueError("'Quarter' column not found in Google Trends data")
-        
-            # Create 'central_bank' column based on existing columns
-        central_banks = ['DE', 'ES', 'FR', 'IT', 'NL', 'ECB_Average']
-        for bank in central_banks:
-            if bank not in google_trends.columns:
-                raise ValueError(f"'{bank}' column not found in Google Trends data")
-        
-         # Melt the dataframe to create 'central_bank' column
-        google_trends_melted = pd.melt(google_trends, id_vars=['Quarter'], value_vars=central_banks, 
-                                       var_name='central_bank', value_name='google_trends_value')
-        
-            # Map short names to full names
-        bank_name_map = {
-            'DE': 'deutsche bundesbank',
-            'ES': 'bank of spain',
-            'FR': 'bank of france',
-            'IT': 'bank of italy',
-            'NL': 'netherlands bank',
-            'ECB_Average': 'european central bank'
-        }
-        google_trends_melted['central_bank'] = google_trends_melted['central_bank'].map(bank_name_map)
-        
-        google_trends_melted['quarter'] = pd.to_datetime(google_trends_melted['Quarter'].apply(lambda x: f"{x.split('-Q')[0]}-{int(x.split('-Q')[1])*3-2:02d}-01"))
-        
-            # Rename columns
-        google_trends_melted.columns = ['original_quarter', 'central_bank', 'google_trends_value', 'quarter']
-        
-            # Ensure the number of new column names matches the number of columns
-        if len(google_trends_melted.columns) != 4:
-            raise ValueError(f"Column name mismatch: {len(google_trends_melted.columns)} columns")
-        
-        merged_df['quarter'] = pd.to_datetime(merged_df['quarter'])
-        merged_df = pd.merge(merged_df, google_trends_melted, on=['quarter', 'central_bank'], how='left')
-        del google_trends, google_trends_melted
-        gc.collect()
-
-        # Step 11: Save to Stata format
-        print("Saving to Stata format...")
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-
-        try:
-            merged_df.to_stata(os.path.join(folder_name, 'topic_proportions_per_quarter.dta'), version=118)
-        except ValueError:
-            merged_df.to_stata(os.path.join(folder_name, 'topic_proportions_per_quarter.dta'), version=117)
-
-        print("Dataset creation and merging process completed successfully.")
-        return merged_df
-
-    except Exception as e:
-        print(f"An error occurred during the dataset creation and merging process: {str(e)}")
-        return None
-
-
-
+# Initialize a dictionary to start grouping topics
 topic_merging = {
-    'Monetary_Policy_Central_Banking': ['Topic_0', 'Topic_12', 'Topic_16', 'Topic_17', 'Topic_19', 'Topic_21', 'Topic_24'],
-    'Economic_Analysis_Indicators': ['Topic_4', 'Topic_12', 'Topic_13', 'Topic_20', 'Topic_22', 'Topic_27'],
-    'Financial_Markets_Integration': ['Topic_10', 'Topic_11', 'Topic_18', 'Topic_29', 'Topic_30', 'Topic_33'],
-    'Banking_Regulation_Supervision': ['Topic_6', 'Topic_7', 'Topic_25', 'Topic_26', 'Topic_34', 'Topic_38'],
-    'Digital_Finance_Innovation': ['Topic_2', 'Topic_28', 'Topic_36', 'Topic_40'],
-    'International_Economics_Exchange_Rates': ['Topic_18', 'Topic_23', 'Topic_35'],
-    'Crisis_Management_Stability': ['Topic_8', 'Topic_9', 'Topic_32', 'Topic_37', 'Topic_41'],
-    'Sustainable_Finance_Climate': ['Topic_5', 'Topic_31'],
-    'Payment_Systems_Cash': ['Topic_15', 'Topic_14', 'Topic_39', 'Topic_43'],
-    'National_Economy': ['Topic_1', 'Topic_3', 'Topic_42', 'Topic_44']
+    'Monetary_Policy_Central_Banking': [],
+    'Economic_Analysis_Indicators': [],
+    'Financial_Markets_Integration': [],
+    'Banking_Regulation_Supervision': [],
+    'Digital_Finance_Innovation': [],
+    'International_Economics_Exchange_Rates': [],
+    'Crisis_Management_Stability': [],
+    'Sustainable_Finance_Climate': [],
+    'Payment_Systems_Cash': [],
+    'National_Economy': [],
+    'Labor_Markets_Employment': [],
+    'Fiscal_Policy_Public_Spending': [],
+    'Global_Economic_Outlook': [],
+    'Trade_Policy_Commodities': [],
+    'Regional_Economies': [],
+    'Interest_Rates_Inflation': [],
+    'Government_Debt_Sovereign_Risk': [],
+    'Economic_Growth_Productivity': [],
+    'Financial_Stability_Cybersecurity': [],
+    'Housing_Markets_Real_Estate': []
 }
+
+# Define categorization criteria based on keywords in 'Name' column
+for index, row in topic_info.iterrows():
+    topic_id = f"Topic_{row['Topic']}"
+    name = row['Name'].lower()
+    
+    if 'monetary policy' in name or 'central bank' in name or 'interest rate' in name:
+        topic_merging['Monetary_Policy_Central_Banking'].append(topic_id)
+    elif 'economic indicator' in name or 'gdp' in name or 'cpi' in name:
+        topic_merging['Economic_Analysis_Indicators'].append(topic_id)
+    elif 'financial market' in name or 'integration' in name or 'stock market' in name:
+        topic_merging['Financial_Markets_Integration'].append(topic_id)
+    elif 'bank regulation' in name or 'supervision' in name or 'compliance' in name:
+        topic_merging['Banking_Regulation_Supervision'].append(topic_id)
+    elif 'digital' in name or 'fintech' in name or 'blockchain' in name:
+        topic_merging['Digital_Finance_Innovation'].append(topic_id)
+    elif 'international' in name or 'exchange rate' in name or 'currency' in name:
+        topic_merging['International_Economics_Exchange_Rates'].append(topic_id)
+    elif 'crisis management' in name or 'stability' in name or 'risk' in name:
+        topic_merging['Crisis_Management_Stability'].append(topic_id)
+    elif 'sustainable' in name or 'climate' in name or 'environment' in name:
+        topic_merging['Sustainable_Finance_Climate'].append(topic_id)
+    elif 'payment' in name or 'cash' in name or 'transaction' in name:
+        topic_merging['Payment_Systems_Cash'].append(topic_id)
+    elif 'national economy' in name or 'growth' in name:
+        topic_merging['National_Economy'].append(topic_id)
+    elif 'labor' in name or 'employment' in name or 'job' in name:
+        topic_merging['Labor_Markets_Employment'].append(topic_id)
+    elif 'fiscal policy' in name or 'spending' in name or 'budget' in name:
+        topic_merging['Fiscal_Policy_Public_Spending'].append(topic_id)
+    elif 'global' in name or 'world economy' in name or 'outlook' in name:
+        topic_merging['Global_Economic_Outlook'].append(topic_id)
+    elif 'trade' in name or 'commodity' in name or 'exports' in name:
+        topic_merging['Trade_Policy_Commodities'].append(topic_id)
+    elif 'regional economy' in name or 'state' in name:
+        topic_merging['Regional_Economies'].append(topic_id)
+    elif 'inflation' in name or 'price stability' in name or 'interest' in name:
+        topic_merging['Interest_Rates_Inflation'].append(topic_id)
+    elif 'government debt' in name or 'sovereign risk' in name:
+        topic_merging['Government_Debt_Sovereign_Risk'].append(topic_id)
+    elif 'productivity' in name or 'innovation' in name or 'economic growth' in name:
+        topic_merging['Economic_Growth_Productivity'].append(topic_id)
+    elif 'cybersecurity' in name or 'financial stability' in name:
+        topic_merging['Financial_Stability_Cybersecurity'].append(topic_id)
+    elif 'housing' in name or 'real estate' in name:
+        topic_merging['Housing_Markets_Real_Estate'].append(topic_id)
+    else:
+        # Place any uncategorized topics in a general or 'Miscellaneous' category if needed
+        topic_merging.setdefault('Miscellaneous', []).append(topic_id)
+
+# Redistribute 'Miscellaneous' topics based on theoretical relevance
+filled_topic_merging = topic_merging.copy()
+filled_topic_merging['Banking_Regulation_Supervision'].extend(['Topic_114'])
+filled_topic_merging['Trade_Policy_Commodities'].extend(['Topic_115'])
+filled_topic_merging['Financial_Stability_Cybersecurity'].extend(['Topic_117', 'Topic_140'])
+filled_topic_merging['Economic_Growth_Productivity'].extend(['Topic_122'])
+filled_topic_merging['Fiscal_Policy_Public_Spending'].extend(['Topic_125'])
+filled_topic_merging['Monetary_Policy_Central_Banking'].extend(['Topic_129'])
+filled_topic_merging['Regional_Economies'].extend(['Topic_131'])
+filled_topic_merging['Global_Economic_Outlook'].extend(['Topic_134'])
+filled_topic_merging['International_Economics_Exchange_Rates'].extend(['Topic_139', 'Topic_141'])
+filled_topic_merging['Crisis_Management_Stability'].extend(['Topic_145'])
+filled_topic_merging['Interest_Rates_Inflation'].extend(['Topic_146'])
+filled_topic_merging['National_Economy'].extend(['Topic_147'])
+
+# Each category represents a broad theme:
+# - 'Monetary_Policy_Central_Banking': Topics on central bank policies, interest rates, monetary control.
+# - 'Economic_Analysis_Indicators': Economic measures, indicators like GDP, inflation, unemployment.
+# - 'Financial_Markets_Integration': Topics on market integration, stock markets, financial networks.
+# - 'Banking_Regulation_Supervision': Regulation and oversight of banks, compliance standards.
+# - 'Digital_Finance_Innovation': Innovation in finance, including fintech, blockchain, and digital currency.
+# - 'International_Economics_Exchange_Rates': Exchange rates, currency stability, international trade impacts.
+# - 'Crisis_Management_Stability': Crisis policies, financial stability measures, risk management.
+# - 'Sustainable_Finance_Climate': Green finance, climate impact on financial policies, sustainable finance.
+# - 'Payment_Systems_Cash': Cash handling, electronic payments, transaction systems.
+# - 'National_Economy': Broader economic trends within a country, including growth and policy impacts.
+# - 'Labor_Markets_Employment': Employment trends, labor markets, and related economic implications.
+# - 'Fiscal_Policy_Public_Spending': Public spending, budgeting, and fiscal policy at government levels.
+# - 'Global_Economic_Outlook': Global trends and predictions, world economy, and major international shifts.
+# - 'Trade_Policy_Commodities': Trade policies, commodity prices, and market regulations.
+# - 'Regional_Economies': Specific regions' economic performance, local policies, and fiscal health.
+# - 'Interest_Rates_Inflation': Inflation rates, interest policies, and price stability.
+# - 'Government_Debt_Sovereign_Risk': Sovereign debt, national financial health, and risk management.
+# - 'Economic_Growth_Productivity': Factors affecting productivity, innovation, and economic growth.
+# - 'Financial_Stability_Cybersecurity': Stability and security within financial systems, including cybersecurity.
+# - 'Housing_Markets_Real_Estate': Real estate markets, housing prices, and related economic factors.
+
+# Final topic dictionary
+filled_topic_merging
 
 
 #step 5: creating figures
