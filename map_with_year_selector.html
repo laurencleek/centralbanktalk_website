@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map with Year Selector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; width: 100%; }
+        .dropdown { position: absolute; top: 10px; left: 10px; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div class="dropdown">
+    <label for="yearSelect">Select Year:</label>
+    <select id="yearSelect">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <!-- Add more years as needed -->
+    </select>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    // Create map instance
+    var map = L.map('map').setView([45, 0], 4);
+
+    // Base layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Layer containers for each year
+    var layers = {};
+    var yearData = {
+        "2020": "speeches_2020.geojson",
+        "2021": "speeches_2021.geojson",
+        "2022": "speeches_2022.geojson"
+    };
+
+    // Function to load GeoJSON data for each year
+    function loadYearData(year) {
+        if (layers[year]) {
+            map.addLayer(layers[year]);
+        } else {
+            fetch(yearData[year])
+                .then(response => response.json())
+                .then(data => {
+                    layers[year] = L.geoJSON(data, {
+                        pointToLayer: function (feature, latlng) {
+                            var count = feature.properties.speech_count;
+                            var color = count > 100 ? 'red' : count > 50 ? 'orange' : count > 10 ? 'blue' : 'green';
+                            return L.circleMarker(latlng, {
+                                radius: 5 + Math.log(count),
+                                color: color,
+                                fillOpacity: 0.7
+                            }).bindPopup(feature.properties.location + ": " + count + " speeches");
+                        }
+                    });
+                    map.addLayer(layers[year]);
+                });
+        }
+    }
+
+    // Populate dropdown and set initial year
+    var yearSelect = document.getElementById('yearSelect');
+    loadYearData(yearSelect.value);
+
+    // Update map when a new year is selected
+    yearSelect.addEventListener('change', function () {
+        for (var layer in layers) {
+            map.removeLayer(layers[layer]);
+        }
+        loadYearData(this.value);
+    });
+</script>
+
+</body>
+</html>

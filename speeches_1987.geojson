@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "speeches_1987",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "latitude": 43.4803, "longitude": -110.7521, "location": "Jackson Hole", "year": 1987, "speech_count": 1 }, "geometry": { "type": "Point", "coordinates": [ -110.7521, 43.4803 ] } }
+]
+}
