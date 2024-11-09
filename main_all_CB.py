@@ -23,6 +23,7 @@ from bertopic import BERTopic
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 import umap as UMAP
+from scipy.cluster import hierarchy as sch
 import torch
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
@@ -133,6 +134,50 @@ else:
 
 ### Step 4: merging with other datasets
 
+timestamps = all_speeches.date.to_list()
+topics_over_time = model.topics_over_time(all_speeches.speech_text, timestamps, nr_bins=20)
+
+model.visualize_topics_over_time(topics_over_time, topics=[9, 10])
+
+
+
+# Visualize the hierarchy using BERTopic's function
+model.visualize_hierarchy(hierarchical_topics=hierarchical_topics)
+
+
+import scipy.cluster.hierarchy as sch
+import numpy as np
+
+# Generate hierarchical topics
+linkage_function = lambda x: sch.linkage(x, 'single', optimal_ordering=True)
+hierarchical_topics = model.hierarchical_topics(all_speeches.speech_text, linkage_function=linkage_function)
+
+# Set target for grouping into approximately 20-25 clusters
+desired_clusters = 25
+
+# Determine the distance threshold
+if isinstance(hierarchical_topics, np.ndarray):
+    distance_threshold = hierarchical_topics[:, 2].max() / desired_clusters
+else:
+    distance_threshold = hierarchical_topics['Distance'].max() / desired_clusters
+
+# Generate clusters based on the threshold
+topic_groups = sch.fcluster(linkage_function(model.topic_embeddings_), t=distance_threshold, criterion='maxclust')
+
+# Create mapping using speech identifiers if they are unique for topics
+topic_mapping = {identifier: group for identifier, group in zip(all_speeches['speech_identifier'], topic_groups)}
+
+# Map `grouped_topic` back to `speech_identifier`
+all_speeches['grouped_topic'] = all_speeches['speech_identifier'].map(topic_mapping)
+
+# Count missing values in 'grouped_topic' and count unique values
+missing_values_count = all_speeches['grouped_topic'].isna().sum()
+unique_values_count = all_speeches['grouped_topic'].nunique()
+
+missing_values_count, unique_values_count
+
+
+
 
 topics = model.topics_
 probabilities = model.probabilities_
@@ -223,23 +268,65 @@ for index, row in topic_info.iterrows():
     elif 'housing' in name or 'real estate' in name:
         topic_merging['Housing_Markets_Real_Estate'].append(topic_id)
     else:
-        # Place any uncategorized topics in a general or 'Miscellaneous' category if needed
-        topic_merging.setdefault('Miscellaneous', []).append(topic_id)
+        # Add uncategorized topics based on category size for balance
+        if len(topic_merging['Monetary_Policy_Central_Banking']) < 10:
+            topic_merging['Monetary_Policy_Central_Banking'].append(topic_id)
+        elif len(topic_merging['Economic_Analysis_Indicators']) < 10:
+            topic_merging['Economic_Analysis_Indicators'].append(topic_id)
+        elif len(topic_merging['Financial_Markets_Integration']) < 10:
+            topic_merging['Financial_Markets_Integration'].append(topic_id)
+        elif len(topic_merging['Banking_Regulation_Supervision']) < 10:
+            topic_merging['Banking_Regulation_Supervision'].append(topic_id)
+        elif len(topic_merging['Digital_Finance_Innovation']) < 10:
+            topic_merging['Digital_Finance_Innovation'].append(topic_id)
+        elif len(topic_merging['International_Economics_Exchange_Rates']) < 10:
+            topic_merging['International_Economics_Exchange_Rates'].append(topic_id)
+        elif len(topic_merging['Crisis_Management_Stability']) < 10:
+            topic_merging['Crisis_Management_Stability'].append(topic_id)
+        elif len(topic_merging['Sustainable_Finance_Climate']) < 10:
+            topic_merging['Sustainable_Finance_Climate'].append(topic_id)
+        elif len(topic_merging['Payment_Systems_Cash']) < 10:
+            topic_merging['Payment_Systems_Cash'].append(topic_id)
+        elif len(topic_merging['National_Economy']) < 10:
+            topic_merging['National_Economy'].append(topic_id)
+        elif len(topic_merging['Labor_Markets_Employment']) < 10:
+            topic_merging['Labor_Markets_Employment'].append(topic_id)
+        elif len(topic_merging['Fiscal_Policy_Public_Spending']) < 10:
+            topic_merging['Fiscal_Policy_Public_Spending'].append(topic_id)
+        elif len(topic_merging['Global_Economic_Outlook']) < 10:
+            topic_merging['Global_Economic_Outlook'].append(topic_id)
+        elif len(topic_merging['Trade_Policy_Commodities']) < 10:
+            topic_merging['Trade_Policy_Commodities'].append(topic_id)
+        elif len(topic_merging['Regional_Economies']) < 10:
+            topic_merging['Regional_Economies'].append(topic_id)
+        elif len(topic_merging['Interest_Rates_Inflation']) < 10:
+            topic_merging['Interest_Rates_Inflation'].append(topic_id)
+        elif len(topic_merging['Government_Debt_Sovereign_Risk']) < 10:
+            topic_merging['Government_Debt_Sovereign_Risk'].append(topic_id)
+        elif len(topic_merging['Economic_Growth_Productivity']) < 10:
+            topic_merging['Economic_Growth_Productivity'].append(topic_id)
+        elif len(topic_merging['Financial_Stability_Cybersecurity']) < 10:
+            topic_merging['Financial_Stability_Cybersecurity'].append(topic_id)
+        elif len(topic_merging['Housing_Markets_Real_Estate']) < 10:
+            topic_merging['Housing_Markets_Real_Estate'].append(topic_id)
 
-# Redistribute 'Miscellaneous' topics based on theoretical relevance
-filled_topic_merging = topic_merging.copy()
-filled_topic_merging['Banking_Regulation_Supervision'].extend(['Topic_114'])
-filled_topic_merging['Trade_Policy_Commodities'].extend(['Topic_115'])
-filled_topic_merging['Financial_Stability_Cybersecurity'].extend(['Topic_117', 'Topic_140'])
-filled_topic_merging['Economic_Growth_Productivity'].extend(['Topic_122'])
-filled_topic_merging['Fiscal_Policy_Public_Spending'].extend(['Topic_125'])
-filled_topic_merging['Monetary_Policy_Central_Banking'].extend(['Topic_129'])
-filled_topic_merging['Regional_Economies'].extend(['Topic_131'])
-filled_topic_merging['Global_Economic_Outlook'].extend(['Topic_134'])
-filled_topic_merging['International_Economics_Exchange_Rates'].extend(['Topic_139', 'Topic_141'])
-filled_topic_merging['Crisis_Management_Stability'].extend(['Topic_145'])
-filled_topic_merging['Interest_Rates_Inflation'].extend(['Topic_146'])
-filled_topic_merging['National_Economy'].extend(['Topic_147'])
+# Function to redistribute topics to ensure no category is empty
+def rebalance_topics(topic_merging):
+    empty_categories = [cat for cat, topics in topic_merging.items() if not topics]
+    for empty_category in empty_categories:
+        for category, topics in topic_merging.items():
+            if len(topics) > 5:
+                topic_to_move = topics.pop()
+                topic_merging[empty_category].append(topic_to_move)
+                break
+    return topic_merging
+
+# Perform rebalancing
+topic_merging = rebalance_topics(topic_merging)
+
+# Display final structured categorization
+topic_merging
+
 
 # Each category represents a broad theme:
 # - 'Monetary_Policy_Central_Banking': Topics on central bank policies, interest rates, monetary control.
@@ -268,11 +355,11 @@ filled_topic_merging
 
 # Step 1: Create a dictionary to store summed probabilities per category
 # Step 1: Initialize empty columns in all_speeches for each category
-for category in filled_topic_merging.keys():
+for category in topic_merging.keys():
     all_speeches[category] = 0
 
 # Step 2: Sum the probabilities for each category across rows
-for category, topics in filled_topic_merging.items():
+for category, topics in topic_merging.items():
     # Check if all the topics in the category exist as columns in all_speeches
     relevant_topics = [topic for topic in topics if topic in all_speeches.columns]
     
@@ -294,7 +381,7 @@ all_speeches['date'] = pd.to_datetime(all_speeches['date'])
 # Step 2: Resample to get yearly/quarterly sums (e.g., by 'year' or 'quarter')
 # For example, yearly resampling:
 all_speeches['year'] = all_speeches['date'].dt.year
-topic_columns = list(filled_topic_merging.keys())  # Convert dict_keys to list
+topic_columns = list(topic_merging.keys())  # Convert dict_keys to list
 topic_trends = all_speeches.groupby('year')[topic_columns].sum()
 
 # Step 3: Plot each category over time
@@ -311,6 +398,52 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
+
+# Convert 'date' to datetime and extract 'year' for yearly aggregation
+all_speeches['year'] = all_speeches['date'].dt.year
+
+# Aggregate yearly sums of topic probabilities
+topic_columns = list(topic_merging.keys())
+topic_trends = all_speeches.groupby('year')[topic_columns].sum()
+
+# Plot each category in a stacked area plot
+plt.figure(figsize=(12, 8))
+plt.stackplot(topic_trends.index, topic_trends.T, labels=topic_columns)
+
+# Customize plot
+plt.title("Trends of Topic Categories Over Time")
+plt.xlabel("Year")
+plt.ylabel("Aggregated Topic Probability")
+plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+# Filter the data to start from 1998
+topic_trends_normalized_1998 = topic_trends_normalized[topic_trends_normalized.index >= 1998]
+
+# Plot each category as a stacked area plot with proportions, starting from 1998
+plt.figure(figsize=(12, 8))
+plt.stackplot(topic_trends_normalized_1998.index, topic_trends_normalized_1998.T, labels=topic_columns)
+
+# Customize plot
+plt.title("Proportional Trends of Topic Categories Over Time (Starting from 1998)")
+plt.xlabel("Year")
+plt.ylabel("Proportion of Topic Probability")
+plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+
+
+#ideas: audiences targeted. locations given. topics spread. 
+#take one topic and see who initiated it and how it spread.
+
+
+
 
 # Calculate the total sum for each topic category across all rows
 topic_totals = all_speeches[topic_columns].sum().sort_values(ascending=False)
