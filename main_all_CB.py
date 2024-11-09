@@ -153,11 +153,6 @@ all_speeches['year'] = all_speeches['year'].astype(int)
 all_speeches['date'] = pd.to_datetime(all_speeches['date'])
 all_speeches['quarter'] = all_speeches['date'].dt.to_period('Q')
 
-
-# Load the uploaded Excel file
-file_path = r'C:\Users\lclee\OneDrive - Istituto Universitario Europeo\PhD\two_thirds_submission\Github_replication_files_by_paper\website\cb_speeches_website\topic_info_new.xlsx'
-topic_data = pd.read_excel(topic_info_path)
-
 # Initialize a dictionary to start grouping topics
 topic_merging = {
     'Monetary_Policy_Central_Banking': [],
@@ -270,6 +265,60 @@ filled_topic_merging['National_Economy'].extend(['Topic_147'])
 
 # Final topic dictionary
 filled_topic_merging
+
+# Step 1: Create a dictionary to store summed probabilities per category
+# Step 1: Initialize empty columns in all_speeches for each category
+for category in filled_topic_merging.keys():
+    all_speeches[category] = 0
+
+# Step 2: Sum the probabilities for each category across rows
+for category, topics in filled_topic_merging.items():
+    # Check if all the topics in the category exist as columns in all_speeches
+    relevant_topics = [topic for topic in topics if topic in all_speeches.columns]
+    
+    # Sum probabilities across relevant topics for each row and assign to the category column
+    if relevant_topics:
+        all_speeches[category] = all_speeches[relevant_topics].sum(axis=1)
+
+# Step 3: Drop individual topic columns
+all_speeches = all_speeches.drop(columns=[col for col in all_speeches.columns if col.startswith('Topic_')])
+
+# Verify the result
+print(all_speeches.head())
+
+import matplotlib.pyplot as plt
+
+# Step 1: Ensure 'date' column is in datetime format if not already
+all_speeches['date'] = pd.to_datetime(all_speeches['date'])
+
+# Step 2: Resample to get yearly/quarterly sums (e.g., by 'year' or 'quarter')
+# For example, yearly resampling:
+all_speeches['year'] = all_speeches['date'].dt.year
+topic_columns = list(filled_topic_merging.keys())  # Convert dict_keys to list
+topic_trends = all_speeches.groupby('year')[topic_columns].sum()
+
+# Step 3: Plot each category over time
+plt.figure(figsize=(12, 8))
+for category in topic_trends.columns:
+    plt.plot(topic_trends.index, topic_trends[category], label=category)
+
+# Customize plot
+plt.title("Trends of Topic Categories Over Time")
+plt.xlabel("Year")
+plt.ylabel("Aggregated Topic Probability")
+plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+# Calculate the total sum for each topic category across all rows
+topic_totals = all_speeches[topic_columns].sum().sort_values(ascending=False)
+
+# Get the top 5 topics
+top_5_topics = topic_totals.head(5)
+print("Top 5 Topics:")
+print(top_5_topics)
 
 
 #step 5: creating figures
