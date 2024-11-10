@@ -6,8 +6,10 @@ import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users,
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsDonutChart, Pie, Cell } from "recharts"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsDonutChart, Pie, Cell, Label, Sector } from "recharts"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
+import PolicyPressuresChart from '@/components/ui/policy-pressures-chart'
+import InteractiveCentralBankMap from '@/components/ui/interactive-map'
 
 import { useData } from '@/contexts/DataContext'
 
@@ -31,18 +33,16 @@ export default function DataPage() {
   }, [])
 
   const getAudienceData = () => {
-
-    console.log(bankData)
-    if (!bankData?.audience) {
+    if (!bankData?.audiences) {
       return []
     }
     
     try {
-      const total = Object.values(bankData.audience).reduce((sum, value) => sum + Number(value), 0)
+      const total = Object.values(bankData.audiences).reduce((sum, value) => sum + Number(value), 0)
       if (total === 0) return []
       
-      return Object.entries(bankData.audience).map(([key, value]) => ({
-        name: key,
+      return Object.entries(bankData.audiences).map(([key, value]) => ({
+        name: key.replace('_', ' '),
         value: (Number(value) / total) * 100
       }))
     } catch (error) {
@@ -62,7 +62,7 @@ export default function DataPage() {
       
       setBankData({
         ...data,
-        audience: data.audience || {},
+        audiences: data.audiences || {},
         speakers: data.speakers || {},
         number_of_speeches: data.number_of_speeches || [],
         year: data.year || [],
@@ -103,6 +103,112 @@ export default function DataPage() {
     }
   }
 
+  const renderActiveShape = (props) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, value } = props
+    
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius + 8}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+        />
+        <text
+          x={cx + (outerRadius + 30) * Math.cos(-((startAngle + endAngle) / 2) * Math.PI / 180)}
+          y={cy + (outerRadius + 30) * Math.sin(-((startAngle + endAngle) / 2) * Math.PI / 180)}
+          textAnchor="middle"
+          fill="#666"
+          className="text-xs font-medium"
+        >
+          {`${payload.name} (${value.toFixed(1)}%)`}
+        </text>
+      </g>
+    )
+  }
+  
+  const AudienceDistributionCard = ({ audienceData }) => {
+    return (
+      <Card className="shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="flex items-center">
+            <PieChart className="mr-2 h-5 w-5 text-blue-600" />
+            Audience Distribution
+          </CardTitle>
+          <CardDescription>
+            Distribution of speech audiences by category
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {audienceData.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsDonutChart>
+                    <Pie
+                      data={audienceData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {audienceData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={AUDIENCE_COLORS[entry.name]} 
+                          className="stroke-background hover:opacity-80 transition-opacity"
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                              <p className="text-sm font-bold">{`${payload[0].name}: ${payload[0].value.toFixed(1)}%`}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                  </RechartsDonutChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="space-y-3">
+                {audienceData.map((entry) => (
+                  <div key={entry.name} className="space-y-1">
+                    <div className="flex items-center">
+                      <div 
+                        className="w-3 h-3 rounded-full mr-2" 
+                        style={{ backgroundColor: AUDIENCE_COLORS[entry.name] }}
+                      />
+                      <span className="text-sm font-medium capitalize">
+                        {entry.name} ({entry.value.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground pl-5">
+                      {AUDIENCE_DESCRIPTIONS[entry.name]}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center">
+              <p className="text-muted-foreground">No audience data available</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    )
+  }
+  
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -161,11 +267,18 @@ export default function DataPage() {
 
   const audienceData = getAudienceData()
 
+  const AUDIENCE_DESCRIPTIONS = {
+    "academic": "Speeches delivered at universities, research institutions, and academic conferences",
+    "central bank": "Communications aimed at other central banks and monetary policy institutions",
+    "financial market": "Addresses to financial sector participants, banks, and market analysts",
+    "political": "Speeches to government bodies, parliaments, and policy makers"
+  }
+  
   const AUDIENCE_COLORS = {
-    academic: "#8884d8",
-    "central bank": "#82ca9d",
-    "financial market": "#ffc658",
-    political: "#ff8042"
+    "academic": "hsl(var(--chart-1))",
+    "central bank": "hsl(var(--chart-2))",
+    "financial market": "hsl(var(--chart-3))",
+    "political": "hsl(var(--chart-4))"
   }
 
   return (
@@ -363,64 +476,13 @@ export default function DataPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <PieChart className="mr-2 h-5 w-5 text-blue-600" />
-                  Audience Distribution
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {audienceData.length > 0 ? (
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsDonutChart>
-                        <Pie
-                          data={audienceData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {audienceData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={AUDIENCE_COLORS[entry.name] || "#000000"} />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="bg-white p-2 border border-gray-300 rounded shadow">
-                                  <p className="text-sm font-bold">{`${payload[0].name}: ${payload[0].value.toFixed(2)}%`}</p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                      </RechartsDonutChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-[300px] flex items-center justify-center">
-                    <p className="text-gray-500">No audience data available</p>
-                  </div>
-                )}
-                {audienceData.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    {audienceData.map((entry) => (
-                      <div key={entry.name} className="flex items-center">
-                        <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: AUDIENCE_COLORS[entry.name] || "#000000" }}></div>
-                        <span className="text-sm text-slate-700 capitalize">{entry.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <AudienceDistributionCard audienceData={audienceData}/>
+
+            {bankData && (
+            <PolicyPressuresChart bankData={bankData} />
+            )}
+
+<InteractiveCentralBankMap />
 
             {/* Sentiment Analysis card remains the same */}
             {/* ... */}
