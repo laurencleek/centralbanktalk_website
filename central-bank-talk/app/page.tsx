@@ -1,8 +1,16 @@
+'use client'
+
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useData } from '@/contexts/DataContext'
 
 export default function Page() {
+  const { data, isLoading, error } = useData("data/central_banks/central_banks.json");
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-100">
       <main className="flex-1">
@@ -115,14 +123,10 @@ export default function Page() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="container mx-auto px-4 flex h-16 items-center">
-          <p className="text-sm text-slate-700">
-            © 2024 Central Bank Talk. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <div>
+      {/* Use your data here */}
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
     </div>
   )
 }
