@@ -42,9 +42,9 @@ export default function RootLayout({
                   <nav className="flex items-center">
                     {[
                       { name: "Data", href: "/data-page" },
-                      { name: "Recent Papers", href: "#" },
+                      { name: "Recent Papers", href: "/" },
                       { name: "Speeches", href: "/data-speech" },
-                      { name: "Themes", href: "#" },
+                      { name: "Memes", href: "/memes" },
                       { name: "About", href: "#" }
                     ].map((item, i, arr) => (
                       <div key={item.name} className="flex items-center">
@@ -73,11 +73,11 @@ export default function RootLayout({
             <footer className="border-t border-slate-200 bg-white">
               <div className="container mx-auto px-4 py-6 flex justify-between items-center">
                 <p className="text-sm text-slate-700">
-                  © 2024 Central Bank Talk. All rights reserved.
+                © 2024 Central Bank Talk.
                 </p>
                 <div className="flex space-x-4">
                   <Link href="#" className="text-sm text-slate-700 hover:text-blue-900">Privacy Policy</Link>
-                  <Link href="#" className="text-sm text-slate-700 hover:text-blue-900">Terms of Service</Link>
+                  <Link href="#" className="text-sm text-slate-700 hover:text-blue-900"></Link>
                 </div>
               </div>
             </footer>

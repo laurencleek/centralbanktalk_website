@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import Link from "next/link"
-import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, MessageSquare, FileText } from "lucide-react"
+import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import PolicyPressuresChart from '@/components/ui/policy-pressures-chart'
 import InteractiveCentralBankMap from '@/components/ui/interactive-map'
+
 
 import { useData } from '@/contexts/DataContext'
 
@@ -59,6 +60,8 @@ export default function DataPage() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       const data = await response.json()
+
+      console.log("Bank data loaded:", data)
       
       setBankData({
         ...data,
@@ -68,6 +71,7 @@ export default function DataPage() {
         year: data.year || [],
         number_of_speakers: data.number_of_speakers || 0
       })
+
     } catch (error) {
       console.error("Error loading bank data:", error)
       setBankData(null)
@@ -301,7 +305,7 @@ export default function DataPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <MapPin className="mr-2 h-5 w-5 text-blue-600" />
-                    Map of Central Banks
+                    Search Central Banks
                   </CardTitle>
                   <CardDescription>
                     <div className="mt-2 relative">
@@ -338,11 +342,6 @@ export default function DataPage() {
                     </div>
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-300">
-                    <p className="text-lg font-semibold">Interactive Map Placeholder</p>
-                  </div>
-                </CardContent>
               </Card>
             </div>
           </div>
@@ -377,46 +376,66 @@ export default function DataPage() {
                         </span>
                       </div>
                       <div className="space-y-2">
-                        <div className="flex items-center">
-                          <User className="h-5 w-5 text-blue-600 mr-2" />
-                          <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
-                        </div>
-                        {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
-                          <div key={speaker.name} className="ml-7 text-sm text-slate-900">
-                            {speaker.name} ({speaker.count})
-                          </div>
-                        ))}
-                      </div>
+  <div className="flex items-center">
+    <User className="h-5 w-5 text-blue-600 mr-2" />
+    <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
+  </div>
+  {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
+    <div
+      key={speaker.name}
+      className="flex items-center space-x-2 ml-7 text-sm text-slate-900"
+    >
+      <span className="text-blue-600 font-semibold">{index + 1}.</span>
+      <span>{speaker.name}</span>
+      <span className="text-slate-500">({speaker.count})</span>
+    </div>
+  ))}
+</div>
+
                       <div className="flex items-center">
                         <FileText className="h-5 w-5 text-blue-600 mr-2" />
                         <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
                       </div>
+                      <div className="flex items-center">
+  <MapPin className="h-5 w-5 text-blue-600 mr-2" />
+  <span className="text-sm font-medium text-slate-700">Headquarters:</span>
+  <span className="ml-auto text-sm font-bold text-slate-900">
+    {bankData ? bankData.cb_location : 'N/A'}
+  </span>
+</div>
+<div className="flex items-center">
+  <Coins className="h-5 w-5 text-blue-600 mr-2" />
+  <span className="text-sm font-medium text-slate-700">Currency:</span>
+  <span className="ml-auto text-sm font-bold text-slate-900">
+    {bankData ? bankData.currency : 'N/A'}
+  </span>
+</div>
+
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Top 10 Topics</h3>
-                    <ol className="space-y-2">
-                      {[
-                        "Monetary Policy",
-                        "Economic Outlook",
-                        "Financial Stability",
-                        "Inflation",
-                        "Employment",
-                        "Interest Rates",
-                        "Banking Regulation",
-                        "Digital Currencies",
-                        "Global Economy",
-                        "Fiscal Policy"
-                      ].map((topic, index) => (
-                        <li key={topic} className="flex items-center">
-                          <Badge variant="outline" className="mr-2 w-6 h-6 rounded-full">
-                            {index + 1}
-                          </Badge>
-                          <span className="text-sm text-slate-700">{topic}</span>
-                        </li>
-                      ))}
-                    </ol>
+                  <h3 className="font-semibold text-lg text-slate-800 mb-4">Top 10 Topics</h3>
+                  <ul className="space-y-3">
+                    {bankData?.top_topics?.slice(0, 10).map(([topic, percentage], index) => (
+                      <li key={topic} className="flex flex-col">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-slate-700 capitalize">
+                            {index + 1}. {topic}
+                          </span>
+                          <span className="text-sm font-semibold text-slate-900">
+                            {(percentage * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-100 h-2 rounded-full">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-in-out"
+                            style={{ width: `${percentage * 100}%` }}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                   </div>
                 </div>
               </CardContent>
@@ -481,8 +500,6 @@ export default function DataPage() {
             {bankData && (
             <PolicyPressuresChart bankData={bankData} />
             )}
-
-<InteractiveCentralBankMap />
 
             {/* Sentiment Analysis card remains the same */}
             {/* ... */}

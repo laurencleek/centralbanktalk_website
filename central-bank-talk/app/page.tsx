@@ -28,9 +28,9 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
               </div>
               <div className="relative p-8 md:p-12">
-                <h2 className="mb-4 text-3xl font-bold text-amber-100 md:text-4xl">CBT Library</h2>
+                <h2 className="mb-4 text-3xl font-bold text-amber-100 md:text-4xl">CB Speeches Insights</h2>
                 <p className="mb-6 max-w-[90%] text-lg text-amber-50">
-                  Access our comprehensive collection of central bank communications and analysis tools.
+                  Access our comprehensive collection of central bank pressures measured through communications.
                 </p>
                 <Button variant="secondary" size="lg" className="bg-amber-100 text-blue-950 hover:bg-amber-200">
                   Explore the Paper
@@ -46,15 +46,15 @@ export default function Page() {
                 <div className="absolute inset-0">
                   <img
                     src="images/webstite_eurosystem.jpg"
-                    alt="World CB Network"
+                    alt="Eurosystem CB Network"
                     className="h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
                 </div>
                 <div className="relative p-6">
-                  <h3 className="mb-2 text-xl font-bold text-amber-100 md:text-2xl">World CB Network</h3>
+                  <h3 className="mb-2 text-xl font-bold text-amber-100 md:text-2xl">Eurosystem CB Network</h3>
                   <p className="mb-4 text-sm text-amber-50">
-                    Explore the interconnected network of central banks and their communication patterns.
+                    Explore the interconnected network of the ECB and national central banks and their communication patterns.
                   </p>
                   <Button variant="secondary" size="sm" className="bg-amber-100 text-blue-950 hover:bg-amber-200">
                     Explore
@@ -74,9 +74,9 @@ export default function Page() {
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
                 </div>
                 <div className="relative p-6">
-                  <h3 className="mb-2 text-xl font-bold text-amber-100 md:text-2xl">ML Analysis</h3>
+                  <h3 className="mb-2 text-xl font-bold text-amber-100 md:text-2xl">LLM Classification</h3>
                   <p className="mb-4 text-sm text-amber-50">
-                    Discover insights through our machine learning analysis of central bank language.
+                    Discover insights through our optimizing LLMs for classification of central bank speak.
                   </p>
                   <Button variant="secondary" size="sm" className="bg-amber-100 text-blue-950 hover:bg-amber-200">
                     Explore
@@ -109,11 +109,11 @@ export default function Page() {
                 Key Insight
               </div>
               <h2 className="max-w-[800px] text-3xl font-bold tracking-tighter text-blue-950 sm:text-4xl">
-                Map and examine development of communication across central banks & systematically track key metrics
+                Central banks are increasingly responding in their communication to various political and market pressures
               </h2>
               <div className="mt-8 w-full max-w-4xl">
                 <img
-                  src="/placeholder.svg?height=400&width=800"
+                  src="/images/placeholder_map.png"
                   alt="Placeholder for data visualization"
                   className="h-auto w-full rounded-lg shadow-lg"
                 />
@@ -124,8 +124,6 @@ export default function Page() {
       </main>
 
       <div>
-      {/* Use your data here */}
-      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
     </div>
   )

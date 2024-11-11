@@ -1,162 +1,482 @@
 "use client"
 
-import { useState } from 'react'
-import Link from "next/link"
-import { ArrowLeft, Search, ExternalLink } from "lucide-react"
+import * as React from "react"
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+import { ArrowUpDown, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useData } from '@/contexts/DataContext'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import debounce from 'lodash/debounce'
+import FlexSearch from 'flexsearch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
-// Mock data for demonstration
-const mockSpeeches = [
-  { id: 1, url: "https://example.com/speech1", date: "2023-01-15", speaker: "John Doe", cb: "Federal Reserve", extract: "Monetary policy remains accommodative..." },
-  { id: 2, url: "https://example.com/speech2", date: "2023-02-20", speaker: "Jane Smith", cb: "European Central Bank", extract: "Inflation expectations are well-anchored..." },
-  { id: 3, url: "https://example.com/speech3", date: "2023-03-10", speaker: "Alice Johnson", cb: "Bank of England", extract: "Digital currencies and their impact on monetary policy..." },
-  { id: 4, url: "https://example.com/speech4", date: "2023-04-05", speaker: "Bob Williams", cb: "Bank of Japan", extract: "The role of central banks in addressing climate change..." },
-  { id: 5, url: "https://example.com/speech5", date: "2023-05-12", speaker: "Carol Brown", cb: "Federal Reserve", extract: "Labor market dynamics and their implications for monetary policy..." },
-]
+
+interface Speech {
+  url: string
+  title: string
+  date: string
+  speech_identifier: string
+  description: string
+  location: string | null
+  audience: string
+  latitude: number | null
+  longitude: number | null
+  central_bank: string
+  position: string
+  venue: string
+}
+
+interface SpeechContent {
+  sentences: string[]
+  classifications: string[]
+  topics: string[]
+}
 
 export default function DataPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedSpeech, setSelectedSpeech] = useState(null)
-  const [year, setYear] = useState("")
-  const [cb, setCb] = useState("")
-  const [location, setLocation] = useState("")
+  const { data: speeches, isLoading, error } = useData<Speech[]>("/data/metadata.json")
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [selectedSpeech, setSelectedSpeech] = React.useState<Speech | null>(null)
+  const [speechContent, setSpeechContent] = React.useState<SpeechContent | null>(null)
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [yearFilter, setYearFilter] = React.useState<string>("all")
+  const [bankFilter, setBankFilter] = React.useState<string>("all")
+  const [searchIndex, setSearchIndex] = React.useState<FlexSearch.Index | null>(null)
+  const [showClassifications, setShowClassifications] = React.useState(false)
 
-  const filteredSpeeches = mockSpeeches.filter(speech =>
-    (speech.extract.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     speech.speaker.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     speech.cb.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (year === "" || speech.date.includes(year)) &&
-    (cb === "" || speech.cb === cb) &&
-    (location === "" || speech.speaker.includes(location))
-  )
-
-  const highlightText = (text, highlight) => {
-    if (!highlight.trim()) {
-      return <span>{text}</span>
+  React.useEffect(() => {
+    if (speeches) {
+      const index = new FlexSearch.Index({ 
+        tokenize: "forward",
+        preset: "score"
+      })
+      speeches.forEach((speech, idx) => {
+        index.add(idx, `${speech.title} ${speech.description} ${speech.central_bank}`)
+      })
+      setSearchIndex(index)
     }
-    const regex = new RegExp(`(${highlight})`, 'gi')
+  }, [speeches])
+
+  React.useEffect(() => {
+    if (selectedSpeech) {
+      fetch(`/data/speeches/${selectedSpeech.speech_identifier}.json`)
+        .then(response => response.json())
+        .then(data => setSpeechContent(data))
+        .catch(error => console.error('Error fetching speech content:', error))
+    }
+  }, [selectedSpeech])
+
+  const highlightText = (text: string, searchTerm: string) => {
+    if (!searchTerm.trim()) return text
+    const regex = new RegExp(`(${searchTerm})`, 'gi')
     const parts = text.split(regex)
     return (
-      <span>
-        {parts.filter(String).map((part, i) => 
-          regex.test(part) ? <mark key={i} className="bg-yellow-200">{part}</mark> : <span key={i}>{part}</span>
+      <>
+        {parts.map((part, i) => 
+          regex.test(part) ? <mark key={i} className="bg-yellow-200">{part}</mark> : part
         )}
-      </span>
+      </>
     )
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-slate-100">
-      <main className="flex-1 container mx-auto p-4">
-        <div className="flex items-center mb-6">
-          <Link href="/" className="flex items-center text-blue-900 hover:text-blue-700">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-          <h1 className="text-3xl font-bold ml-4">Data (Speeches)</h1>
+  const columns: ColumnDef<Speech>[] = [
+    {
+      accessorKey: "date",
+      header: "Date",
+      cell: ({ row }) => <div>{row.getValue("date")}</div>,
+    },
+    {
+      accessorKey: "title",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Title
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => (
+        <div className="max-w-[500px] truncate">
+          {highlightText(row.getValue("title"), searchTerm)}
         </div>
+      ),
+    },
+    {
+      accessorKey: "central_bank",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Central Bank
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => (
+        <div>{highlightText(row.getValue("central_bank"), searchTerm)}</div>
+      ),
+    },
+    {
+      accessorKey: "location",
+      header: "Location",
+      cell: ({ row }) => <div>{row.getValue("location") || "N/A"}</div>,
+    },
+  ]
 
-        {/* Search and Filter Section */}
-        <div className="mb-6 space-y-4">
-          <div className="flex space-x-4">
+  const debouncedSearch = React.useMemo(
+    () => debounce((value: string) => {
+      setSearchTerm(value)
+    }, 300),
+    []
+  )
+
+  const filteredSpeeches = React.useMemo(() => {
+    if (!speeches) return []
+    
+    let filtered = speeches
+
+    if (yearFilter !== "all") {
+      filtered = filtered.filter(speech => speech.date.startsWith(yearFilter))
+    }
+
+    if (bankFilter !== "all") {
+      filtered = filtered.filter(speech => speech.central_bank === bankFilter)
+    }
+
+    if (searchTerm && searchIndex) {
+      const results = searchIndex.search(searchTerm)
+      const matchedSpeeches = results.map(idx => filtered[idx])
+      filtered = matchedSpeeches.filter(speech => filtered.includes(speech))
+    }
+
+    return filtered
+  }, [speeches, searchTerm, yearFilter, bankFilter, searchIndex])
+
+  const years = React.useMemo(() => {
+    if (!speeches) return []
+    const uniqueYears = new Set(speeches.map(speech => speech.date.substring(0, 4)))
+    return Array.from(uniqueYears).sort().reverse()
+  }, [speeches])
+
+  const banks = React.useMemo(() => {
+    if (!speeches) return []
+    const uniqueBanks = new Set(speeches.map(speech => speech.central_bank))
+    return Array.from(uniqueBanks).sort()
+  }, [speeches])
+
+  const table = useReactTable({
+    data: filteredSpeeches,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+    },
+  })
+
+  const getClassificationColor = (classification: string) => {
+    switch (classification) {
+      case "financial dominance": return "bg-red-100 dark:bg-red-900"
+      case "fiscal dominance": return "bg-blue-100 dark:bg-blue-900"
+      case "monetary dominance": return "bg-green-100 dark:bg-green-900"
+      case "monetary-fiscal coordination": return "bg-yellow-100 dark:bg-yellow-900"
+      case "monetary-financial coordination": return "bg-purple-100 dark:bg-purple-900"
+      default: return "bg-gray-100 dark:bg-gray-800"
+    }
+  }
+
+  if (isLoading) {
+    return <DataTableSkeleton />
+  }
+
+  if (error) {
+    return <div className="flex justify-center items-center h-screen">Error loading data: {error.message}</div>
+  }
+
+  return (
+    <div className="container mx-auto py-10">
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 flex-1">
             <Input
               placeholder="Search speeches..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow"
+              onChange={(event) => debouncedSearch(event.target.value)}
+              className="max-w-sm"
             />
-            <Button>
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-          </div>
-          <div className="flex space-x-4">
-            <Select value={year} onValueChange={setYear}>
+            <Select value={yearFilter} onValueChange={setYearFilter}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Year" />
+                <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>
-                {["2023", "2022", "2021", "2020"].map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
+                <SelectItem value="all">All years</SelectItem>
+                {years.map(year => (
+                  <SelectItem key={year} value={year}>{year}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={cb} onValueChange={setCb}>
+            <Select value={bankFilter} onValueChange={setBankFilter}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Central Bank" />
+                <SelectValue placeholder="Select bank" />
               </SelectTrigger>
               <SelectContent>
-                {["Federal Reserve", "European Central Bank", "Bank of England", "Bank of Japan"].map((bank) => (
+                <SelectItem value="all">All banks</SelectItem>
+                {banks.map(bank => (
                   <SelectItem key={bank} value={bank}>{bank}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Location" />
-              </SelectTrigger>
-              <SelectContent>
-                {["New York", "Frankfurt", "London", "Tokyo"].map((loc) => (
-                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  )
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        {/* Results Table */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Speaker</TableHead>
-              <TableHead>Central Bank</TableHead>
-              <TableHead>Extract</TableHead>
-              <TableHead>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredSpeeches.map((speech) => (
-              <TableRow key={speech.id}>
-                <TableCell>{speech.date}</TableCell>
-                <TableCell>{highlightText(speech.speaker, searchTerm)}</TableCell>
-                <TableCell>{highlightText(speech.cb, searchTerm)}</TableCell>
-                <TableCell className="max-w-md truncate">{highlightText(speech.extract, searchTerm)}</TableCell>
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedSpeech(speech)}>
-                        View Full Speech
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl">
-                      <DialogHeader>
-                        <DialogTitle>{speech.speaker} - {speech.date}</DialogTitle>
-                      </DialogHeader>
-                      <div className="mt-4">
-                        <h3 className="text-lg font-semibold mb-2">Full Speech</h3>
-                        <p className="text-sm text-gray-500 mb-4">
-                          This is a placeholder for the full speech text. In a real application, 
-                          you would fetch and display the complete speech content here.
-                        </p>
-                        <Button asChild>
-                          <a href={speech.url} target="_blank" rel="noopener noreferrer">
-                            View Original <ExternalLink className="ml-2 h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </main>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setSelectedSpeech(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {table.getRowModel().rows.length} of {speeches?.length} speeches
+          </p>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={!!selectedSpeech} onOpenChange={() => {
+        setSelectedSpeech(null)
+        setSpeechContent(null)
+      }}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="space-y-4">
+            <DialogHeader>
+              <DialogTitle>{selectedSpeech?.title}</DialogTitle>
+            </DialogHeader>
+
+            <div className="grid gap-2 text-sm">
+              <p><span className="font-medium">Date:</span> {selectedSpeech?.date}</p>
+              <p><span className="font-medium">Central Bank:</span> {selectedSpeech?.central_bank}</p>
+              {selectedSpeech?.location && (
+                <p><span className="font-medium">Location:</span> {selectedSpeech.location}</p>
+              )}
+            </div>
+
+            {speechContent?.topics && (
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Topics</h3>
+                <div className="flex flex-wrap gap-2">
+                  {speechContent.topics.map((topic, index) => (
+                    <span key={index} className="px-2 py-1 bg-primary text-primary-foreground rounded-full text-sm">
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="sticky top-0 bg-background z-10">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Speech Content</h3>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={showClassifications}
+                    onCheckedChange={setShowClassifications}
+                    id="show-classifications"
+                  />
+                  <Label htmlFor="show-classifications">Show Classifications</Label>
+                </div>
+              </div>
+              {showClassifications && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-4">
+                  {["none", "financial dominance", "fiscal dominance", "monetary dominance", "monetary-fiscal coordination", "monetary-financial coordination"].map((classification) => (
+                    <div key={classification} className={`px-2 py-1 ${getClassificationColor(classification)} rounded text-sm text-center`}>
+                      {classification}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4">
+              {speechContent ? (
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {speechContent.sentences.map((sentence, index) => (
+                    <span
+                      key={index}
+                      className={showClassifications ? getClassificationColor(speechContent.classifications[index]) : ""}
+                    >
+                      {sentence}{' '}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Loading speech content...</p>
+              )}
+            </div>
+
+            <div className="pt-4">
+              <Button asChild>
+                <a href={`https://www.bis.org/review/${selectedSpeech?.url}`}  target="_blank" rel="noopener noreferrer">
+                  View PDF on BIS Website
+                </a>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function DataTableSkeleton() {
+  return (
+    <div className="container mx-auto py-10">
+      <div className="flex items-center space-x-2 mb-4">
+        <div className="h-9 w-[384px] bg-muted rounded animate-pulse" />
+        <div className="h-9 w-[180px] bg-muted rounded animate-pulse" />
+        <div className="h-9 w-[180px] bg-muted rounded animate-pulse" />
+        <div className="ml-auto h-9 w-[100px] bg-muted rounded animate-pulse" />
+      </div>
+      <div className="rounded-md border">
+        <div className="h-10 border-b bg-muted/50" />
+        {[...Array(10)].map((_, i) => (
+          <div key={i} className="h-16 border-b bg-muted/20 animate-pulse" style={{animationDelay: `${i * 100}ms`}} />
+        ))}
+      </div>
     </div>
   )
 }
