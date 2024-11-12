@@ -40,7 +40,7 @@ export default function AboutPage() {
                 <h3 className="text-2xl font-medium mt-6 text-center text-gray-900">Lauren Leek</h3>
                 <p className="text-gray-600 leading-relaxed mt-4 text-center">
                   PhD researcher in political science at the European University Institute. 
-                  Previously a visiting PhD researcher at the London School of Economics 
+                  She was previously a visiting PhD researcher at the London School of Economics 
                   and a PhD trainee at the European Central Bank in DG Economics.
                 </p>
                 <div className="flex items-center justify-center space-x-6 mt-auto pt-6">
@@ -76,7 +76,7 @@ export default function AboutPage() {
                 <h3 className="text-2xl font-medium mt-6 text-center text-gray-900">Simeon Bischl</h3>
                 <p className="text-gray-600 leading-relaxed mt-4 text-center">
                   PhD researcher in Economics at the European University Institute. 
-                  Previously a trainee at the European Central Bank.
+                  He was previously a research analyst at the European Central Bank in DG Econnomics.
                 </p>
                 <div className="flex items-center justify-center space-x-6 mt-auto pt-6">
                   <Link 

@@ -42,7 +42,7 @@ export default function RootLayout({
                   <nav className="flex items-center">
                     {[
                       { name: "Data", href: "/data-page" },
-                      { name: "Recent Papers", href: "/" },
+                      { name: "Recent Papers", href: "/research" },
                       { name: "Speeches", href: "/data-speech" },
                       { name: "Memes", href: "/memes" },
                       { name: "About", href: "/about_us" }
