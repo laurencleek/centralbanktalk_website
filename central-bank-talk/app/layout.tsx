@@ -45,7 +45,7 @@ export default function RootLayout({
                       { name: "Recent Papers", href: "/" },
                       { name: "Speeches", href: "/data-speech" },
                       { name: "Memes", href: "/memes" },
-                      { name: "About", href: "#" }
+                      { name: "About", href: "/about_us" }
                     ].map((item, i, arr) => (
                       <div key={item.name} className="flex items-center">
                         <Link

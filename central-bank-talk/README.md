@@ -14,7 +14,6 @@ How to run?
     npm run dev
     ```
 
-
 4. If rerunning leads to problems [localhost:3000](localhost:3000):
     ```bash
     rmdir /s /q .next
