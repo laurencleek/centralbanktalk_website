@@ -30,7 +30,7 @@ export default function AboutPage() {
               <div className="flex flex-col h-full">
                 <div className="aspect-square relative overflow-hidden bg-gray-100">
                   <Image
-                    src="/placeholder.svg?height=600&width=600"
+                    src="about/lauren.png?height=600&width=600"
                     alt="Lauren Leek"
                     layout="fill"
                     objectFit="cover"
