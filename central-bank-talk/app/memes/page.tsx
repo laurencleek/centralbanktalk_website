@@ -3,8 +3,8 @@ import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
 
 const memes = [
-    { id: 1, title: "Central Bank Meme 1", src: "/memes/supermeme_10h14_41.png"},
-    { id: 2, title: "Central Bank Meme 2", src: "/memes/supermeme_10h22_25.png"}
+    { id: 1, title: "Central Bank Meme 1", src: "memes/supermeme_10h14_41.png"},
+    { id: 2, title: "Central Bank Meme 2", src: "memes/supermeme_10h22_25.png"}
 ]
 
 export default function MemesPage() {

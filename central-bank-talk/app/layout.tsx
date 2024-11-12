@@ -30,7 +30,7 @@ export default function RootLayout({
                   <div className="flex items-center gap-4">
                     <div className="relative w-10 h-10 overflow-hidden rounded-full">
                       <Image
-                        src="/logo.webp"
+                        src="logo.webp"
                         alt="Central Bank Talk Logo"
                         width={40}
                         height={40}
