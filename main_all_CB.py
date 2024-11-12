@@ -57,7 +57,7 @@ if os.path.exists(model_path):
 else:
     print("Running topic modeling (this may take up to 11 hours depending on your computer)...")
     docs = all_speeches.speech_text.to_list()
-    embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    embedding_model = SentenceTransformer("all-mpnet-base-v2")
     embeddings = embedding_model.encode(
         docs, 
         show_progress_bar=True,
@@ -141,9 +141,6 @@ model.visualize_topics_over_time(topics_over_time, topics=[9, 10])
 
 
 
-# Visualize the hierarchy using BERTopic's function
-model.visualize_hierarchy(hierarchical_topics=hierarchical_topics)
-
 
 import scipy.cluster.hierarchy as sch
 import numpy as np
@@ -151,6 +148,10 @@ import numpy as np
 # Generate hierarchical topics
 linkage_function = lambda x: sch.linkage(x, 'single', optimal_ordering=True)
 hierarchical_topics = model.hierarchical_topics(all_speeches.speech_text, linkage_function=linkage_function)
+
+# Visualize the hierarchy using BERTopic's function
+model.visualize_hierarchy(hierarchical_topics=hierarchical_topics)
+
 
 # Set target for grouping into approximately 20-25 clusters
 desired_clusters = 25
