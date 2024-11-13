@@ -9,34 +9,46 @@ const memes = [
 
 export default function MemesPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <main className="flex-1 container mx-auto p-4 md:p-6 flex flex-col items-center">
-        <div className="w-full flex flex-col md:flex-row items-center justify-between mb-6">
-          <Link href="/" className="flex items-center text-blue-600 hover:text-blue-800">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-          <h1 className="text-3xl font-bold text-slate-900 mt-4 md:mt-0">Central Bank Memes</h1>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+      <main className="container mx-auto p-4 md:p-8">
+        {/* Header Section */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <Link 
+              href="/" 
+              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 group"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
+              Back to Home
+            </Link>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
+              Central Bank Memes
+            </h1>
+          </div>
+          <div className="mt-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
         </div>
 
-        <div className="w-full max-w-2xl mx-auto space-y-6">
+        {/* Memes Grid */}
+        <div className="max-w-4xl mx-auto grid gap-8">
           {memes.map((meme) => (
             <div 
               key={meme.id} 
-              className="overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl"
+              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
-              <Image
-                src={meme.src}
-                alt={meme.alt}
-                width={600}
-                height={600}
-                className="w-full h-auto rounded-lg"
-                style={{
-                  maxWidth: '100%',
-                  height: 'auto',
-                  display: 'block',
-                }}
-              />
+              <div className="p-4 border-b border-slate-100">
+                <h2 className="text-lg font-medium text-slate-700">{meme.title}</h2>
+              </div>
+              <div className="relative flex justify-center p-4">
+                <div className="relative w-full max-w-2xl aspect-[16/9]">
+                  <Image
+                    src={meme.src}
+                    alt={meme.title}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              </div>
             </div>
           ))}
         </div>
