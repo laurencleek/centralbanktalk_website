@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useData } from '@/contexts/DataContext'
-import { useVirtualizer } from '@tanstack/react-virtual'
 import debounce from 'lodash/debounce'
 import FlexSearch from 'flexsearch'
 import {
@@ -49,6 +48,8 @@ interface Speech {
   url: string
   title: string
   date: string
+  speaker: string
+  position: string
   speech_identifier: string
   description: string
   location: string | null
@@ -56,7 +57,6 @@ interface Speech {
   latitude: number | null
   longitude: number | null
   central_bank: string
-  position: string
   venue: string
 }
 
@@ -68,9 +68,18 @@ interface SpeechContent {
 
 export default function DataPage() {
   const { data: speeches, isLoading, error } = useData<Speech[]>("/data/metadata.json")
+  const { data: centralBanks } = useData<Record<string, string>>("/data/central_banks/central_banks.json")
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+    date: true,
+    title: true,
+    speaker: true,
+    central_bank: true,
+    location: true,
+    position: false,
+    audience: false,
+  })
   const [selectedSpeech, setSelectedSpeech] = React.useState<Speech | null>(null)
   const [speechContent, setSpeechContent] = React.useState<SpeechContent | null>(null)
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -86,7 +95,7 @@ export default function DataPage() {
         preset: "score"
       })
       speeches.forEach((speech, idx) => {
-        index.add(idx, `${speech.title} ${speech.description} ${speech.central_bank}`)
+        index.add(idx, `${speech.title} ${speech.description} ${speech.central_bank} ${speech.speaker} ${speech.position} ${speech.location || ''}`)
       })
       setSearchIndex(index)
     }
@@ -114,11 +123,26 @@ export default function DataPage() {
     )
   }
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
   const columns: ColumnDef<Speech>[] = [
     {
       accessorKey: "date",
-      header: "Date",
-      cell: ({ row }) => <div>{row.getValue("date")}</div>,
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Date
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div className="whitespace-nowrap">{formatDate(row.getValue("date"))}</div>,
     },
     {
       accessorKey: "title",
@@ -134,10 +158,34 @@ export default function DataPage() {
         )
       },
       cell: ({ row }) => (
-        <div className="max-w-[500px] truncate">
+        <div className="max-w-[300px] truncate">
           {highlightText(row.getValue("title"), searchTerm)}
         </div>
       ),
+    },
+    {
+      accessorKey: "speaker",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Speaker
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => (
+        <div className="max-w-[150px] truncate">
+          {highlightText(row.getValue("speaker"), searchTerm)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "position",
+      header: "Position",
+      cell: ({ row }) => <div className="max-w-[150px] truncate">{highlightText(row.getValue("position"), searchTerm)}</div>,
     },
     {
       accessorKey: "central_bank",
@@ -153,13 +201,24 @@ export default function DataPage() {
         )
       },
       cell: ({ row }) => (
-        <div>{highlightText(row.getValue("central_bank"), searchTerm)}</div>
+        <div className="max-w-[200px] truncate">
+          {highlightText(centralBanks?.[row.getValue("central_bank")] || row.getValue("central_bank"), searchTerm)}
+        </div>
       ),
     },
     {
       accessorKey: "location",
       header: "Location",
-      cell: ({ row }) => <div>{row.getValue("location") || "N/A"}</div>,
+      cell: ({ row }) => (
+        <div className="max-w-[150px] truncate">
+          {highlightText(row.getValue("location") || "N/A", searchTerm)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "audience",
+      header: "Audience",
+      cell: ({ row }) => <div className="max-w-[150px] truncate">{highlightText(row.getValue("audience"), searchTerm)}</div>,
     },
   ]
 
@@ -173,24 +232,27 @@ export default function DataPage() {
   const filteredSpeeches = React.useMemo(() => {
     if (!speeches) return []
     
-    let filtered = speeches
+    let filtered = [...speeches] // Create a copy to avoid mutation
 
+    // Apply search first
+    if (searchTerm && searchIndex) {
+      const results = searchIndex.search(searchTerm)
+      filtered = results.map(idx => speeches[idx])
+    }
+
+    // Then apply filters
     if (yearFilter !== "all") {
       filtered = filtered.filter(speech => speech.date.startsWith(yearFilter))
     }
 
     if (bankFilter !== "all") {
-      filtered = filtered.filter(speech => speech.central_bank === bankFilter)
-    }
-
-    if (searchTerm && searchIndex) {
-      const results = searchIndex.search(searchTerm)
-      const matchedSpeeches = results.map(idx => filtered[idx])
-      filtered = matchedSpeeches.filter(speech => filtered.includes(speech))
+      filtered = filtered.filter(speech => 
+        centralBanks?.[speech.central_bank] === bankFilter || speech.central_bank === bankFilter
+      )
     }
 
     return filtered
-  }, [speeches, searchTerm, yearFilter, bankFilter, searchIndex])
+  }, [speeches, searchTerm, yearFilter, bankFilter, searchIndex, centralBanks])
 
   const years = React.useMemo(() => {
     if (!speeches) return []
@@ -199,10 +261,10 @@ export default function DataPage() {
   }, [speeches])
 
   const banks = React.useMemo(() => {
-    if (!speeches) return []
-    const uniqueBanks = new Set(speeches.map(speech => speech.central_bank))
+    if (!speeches || !centralBanks) return []
+    const uniqueBanks = new Set(speeches.map(speech => centralBanks[speech.central_bank] || speech.central_bank))
     return Array.from(uniqueBanks).sort()
-  }, [speeches])
+  }, [speeches, centralBanks])
 
   const table = useReactTable({
     data: filteredSpeeches,
@@ -317,7 +379,7 @@ export default function DataPage() {
           </DropdownMenu>
         </div>
 
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -344,7 +406,7 @@ export default function DataPage() {
                     onClick={() => setSelectedSpeech(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="p-2">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -403,11 +465,15 @@ export default function DataPage() {
             </DialogHeader>
 
             <div className="grid gap-2 text-sm">
-              <p><span className="font-medium">Date:</span> {selectedSpeech?.date}</p>
-              <p><span className="font-medium">Central Bank:</span> {selectedSpeech?.central_bank}</p>
+              <p><span className="font-medium">Date:</span> {selectedSpeech?.date && formatDate(selectedSpeech.date)}</p>
+              <p><span className="font-medium">Speaker:</span> {selectedSpeech?.speaker}</p>
+              <p><span className="font-medium">Position:</span> {selectedSpeech?.position}</p>
+              <p><span className="font-medium">Central Bank:</span> {centralBanks?.[selectedSpeech?.central_bank || ""] || selectedSpeech?.central_bank}</p>
+              <p><span className="font-medium">Audience:</span> {selectedSpeech?.audience}</p>
               {selectedSpeech?.location && (
                 <p><span className="font-medium">Location:</span> {selectedSpeech.location}</p>
               )}
+              <p><span className="font-medium">Description:</span> {selectedSpeech?.description}</p>
             </div>
 
             {speechContent?.topics && (
