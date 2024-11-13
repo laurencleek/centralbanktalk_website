@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown } from "lucide-react"
+import { ArrowUpDown, ChevronDown, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -44,7 +44,6 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-
 
 interface Speech {
   url: string
@@ -243,6 +242,22 @@ export default function DataPage() {
 
   return (
     <div className="container mx-auto py-10">
+      <div className="flex justify-start mb-6">
+        <Button variant="ghost" className="text-primary hover:text-primary/80" asChild>
+          <a href="/" className="flex items-center gap-2">
+            <ChevronLeft className="h-4 w-4" />
+            Back to Home
+          </a>
+        </Button>
+      </div>
+      <div className="text-center mb-10">
+        <h1 className="inline-block text-4xl font-bold bg-blue-50 dark:bg-blue-900/20 px-6 py-2 rounded-full mb-4">
+          Explore Speeches
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          Search through our speeches database by date, bank and keywords.
+        </p>
+      </div>
       <div className="flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 flex-1">
