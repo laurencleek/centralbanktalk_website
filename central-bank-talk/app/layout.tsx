@@ -20,6 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+      <link rel="icon" type="image/webp" href="/logo.webp" />
+      </head>
       <body className={inter.className}>
         <DataProvider>
           <div className="flex min-h-screen flex-col bg-slate-50">
