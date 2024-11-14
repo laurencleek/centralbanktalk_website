@@ -1,12 +1,13 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Montserrat } from 'next/font/google'
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import Image from 'next/image'
 import { DataProvider } from '@/contexts/DataContext'
 
 const inter = Inter({ subsets: ['latin'] })
+const montserrat = Montserrat({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Central Bank Talk',
@@ -40,7 +41,10 @@ export default function RootLayout({
                         layout="fixed"
                       />
                     </div>
-                    <span className="text-xl font-bold text-blue-950">Central Bank Talk</span>
+                    <span className={`scroll-m-20 text-2xl font-semibold tracking-tight ${montserrat.className}`}>
+                      <span className="text-black">CB</span>
+                      <span className="text-blue-950"> Talk</span>
+                    </span>
                   </div>
                   <nav className="flex items-center">
                     {[

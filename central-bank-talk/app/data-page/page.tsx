@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import Link from "next/link"
-import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText, List, BarChart2, PieChart as PieChartIcon, TrendingUp as TrendingUpIcon } from "lucide-react"
+import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText, List, BarChart2, PieChart as PieChartIcon, TrendingUp as TrendingUpIcon, Info } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -529,8 +529,17 @@ export default function DataPage() {
             </div>
 
             {bankData && (
-              <div id="policy-pressures">
+              <div id="policy-pressures" className="relative">
+                <div className="absolute top-4 right-4 group z-10">
+                  <Info className="h-5 w-5 text-blue-600 cursor-help" />
+                  <div className="hidden group-hover:block absolute right-0 w-80 p-2 bg-white border border-gray-200 rounded-lg shadow-lg text-sm">
+                    We define these based on responses of central banks to pressures. For more information on the index construction and examples see the paper Introducing Textual Measures of Central Bank Policy-Linkages Using ChatGPT in the Recent Papers tab.
+                  </div>
+                </div>
                 <PolicyPressuresChart bankData={bankData}/>
+                <div className="mt-2 text-sm text-gray-500 text-right">
+                  Source: <Link href="/research" className="text-blue-600 hover:underline">Research</Link>
+                </div>
               </div>
             )}
 
