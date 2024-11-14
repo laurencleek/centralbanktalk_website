@@ -117,6 +117,7 @@ export default function DataPage() {
   const [searchIndex, setSearchIndex] = React.useState<FlexSearch.Index | null>(null)
   const [showClassifications, setShowClassifications] = React.useState(false)
   const [showWelcomeDialog, setShowWelcomeDialog] = React.useState(false)
+  const [pageSize, setPageSize] = React.useState<number>(10)
 
   React.useEffect(() => {
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome')
@@ -325,6 +326,11 @@ export default function DataPage() {
       columnFilters,
       columnVisibility,
     },
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
   })
 
   const getClassificationColor = (classification: string) => {
@@ -480,9 +486,26 @@ export default function DataPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing {table.getRowModel().rows.length} of {speeches?.length} speeches
-            </p>
+            <div className="flex items-center space-x-2">
+              <p className="text-sm text-muted-foreground">
+                Showing {table.getRowModel().rows.length} of {speeches?.length} speeches
+              </p>
+              <Select value={pageSize.toString()} onValueChange={(value) => {
+                setPageSize(Number(value))
+                table.setPageSize(Number(value))
+              }}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50].map((size) => (
+                    <SelectItem key={size} value={size.toString()}>
+                      {size} rows
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
