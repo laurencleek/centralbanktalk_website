@@ -375,37 +375,39 @@ export default function DataPage() {
         titleAccent="speeches database"
         description="Explore central bank communications by date, bank and keywords."
       />
-      <div className="container mx-auto max-w-6xl px-4 pb-12">
+      <div className="container mx-auto px-4 pb-8 sm:pb-12">
         <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 flex-1">
               <Input
                 placeholder="Search speeches..."
                 onChange={(event) => debouncedSearch(event.target.value)}
-                className="max-w-sm"
+                className="w-full sm:max-w-sm"
               />
-              <Select value={yearFilter} onValueChange={setYearFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All years</SelectItem>
-                  {years.map(year => (
-                    <SelectItem key={year} value={year}>{year}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={bankFilter} onValueChange={setBankFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select bank" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All banks</SelectItem>
-                  {banks.map(bank => (
-                    <SelectItem key={bank} value={bank}>{bank}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={yearFilter} onValueChange={setYearFilter}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All years</SelectItem>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={bankFilter} onValueChange={setBankFilter}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Select bank" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All banks</SelectItem>
+                    {banks.map(bank => (
+                      <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -435,7 +437,7 @@ export default function DataPage() {
             </DropdownMenu>
           </div>
 
-          <div className="rounded-md border overflow-hidden">
+          <div className="overflow-x-auto rounded-md border">
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -485,7 +487,7 @@ export default function DataPage() {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-2">
               <p className="text-sm text-muted-foreground">
                 Showing {table.getRowModel().rows.length} of {speeches?.length} speeches

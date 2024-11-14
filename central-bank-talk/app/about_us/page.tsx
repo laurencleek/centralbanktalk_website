@@ -13,13 +13,13 @@ export default function AboutPage() {
       />
 
       {/* Project Description Section */}
-      <section className="bg-white text-gray-800 py-12 px-4">
+      <section className="bg-white text-gray-800 py-8 sm:py-12 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="relative mb-8">
             <h2 className="text-xl font-medium text-gray-900">ABOUT THE PROJECT</h2>
             <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-indigo-500"></div>
           </div>
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
             <strong className="text-gray-900">
               Central bank communication has gone from being something 'not done' to a core tool of central banks over the past three decades.
             </strong>
@@ -29,17 +29,17 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="bg-white text-gray-800 py-20 px-4">
+      <section className="bg-white text-gray-800 py-12 sm:py-20 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="relative mb-16">
             <h2 className="text-xl font-medium text-gray-900">OUR PROJECT TEAM</h2>
             <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-indigo-500"></div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
             <div className="space-y-4 group">
-              <div className="flex flex-col h-full bg-gray-50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg">
-                <div className="w-48 h-48 relative overflow-hidden bg-gray-100 rounded-full mx-auto ring-4 ring-indigo-100 group-hover:ring-indigo-200 transition-all duration-300">
+              <div className="flex flex-col h-full bg-gray-50 rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg">
+                <div className="w-32 h-32 sm:w-48 sm:h-48 relative overflow-hidden bg-gray-100 rounded-full mx-auto ring-4 ring-indigo-100 group-hover:ring-indigo-200 transition-all duration-300">
                   <Image
                     src="about/lauren.png?height=600&width=600"
                     alt="Lauren Leek"
@@ -83,8 +83,8 @@ export default function AboutPage() {
             </div>
 
             <div className="space-y-4 group">
-              <div className="flex flex-col h-full bg-gray-50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg">
-                <div className="w-48 h-48 relative overflow-hidden bg-gray-100 rounded-full mx-auto ring-4 ring-indigo-100 group-hover:ring-indigo-200 transition-all duration-300">
+              <div className="flex flex-col h-full bg-gray-50 rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg">
+                <div className="w-32 h-32 sm:w-48 sm:h-48 relative overflow-hidden bg-gray-100 rounded-full mx-auto ring-4 ring-indigo-100 group-hover:ring-indigo-200 transition-all duration-300">
                   <Image
                     src="about/simeon.jpg?height=600&width=600"
                     alt="Simeon Bischl"

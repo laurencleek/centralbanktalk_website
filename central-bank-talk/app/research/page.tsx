@@ -71,30 +71,26 @@ export default function ResearchPage() {
         titleAccent="papers"
         description="Explore our research on central bank communication and policy frameworks."
       />
-      <main className="container mx-auto px-4 py-12">
-        <div className="space-y-12">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="space-y-8">
           {papers.map((paper, index) => (
             <div 
               key={paper.id} 
               id={paper.id === 1 ? 'cbi-llm' : paper.id === 2 ? 'agenda-setting' : 'textual-measures'}
-              className="flex flex-col md:flex-row gap-8 bg-white rounded-lg border p-6 hover:shadow-lg transition-shadow"
+              className="flex flex-col lg:flex-row gap-6 bg-white rounded-lg border p-4 sm:p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex-1">
-                <div className="sticky top-6">
+                <div className="space-y-4">
                   <div className="text-sm font-medium text-[#1a365d] mb-2 bg-amber-100/80 text-[#1a365d] px-2 py-1 rounded inline-block">
                     {paper.category}
                   </div>
-                  <h2 className="text-xl font-semibold text-[#1a365d] mb-2">{paper.title}</h2>
-                  <p className="text-gray-600 mb-2 font-light text-[#1a365d]">
-                    {paper.authors.join(", ").replace("Freier, Maximilian", "Maximilian Freier")}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-4 font-light text-[#1a365d]">{paper.date}</p>
-                  <p className="text-sm text-gray-700 mb-4 font-light text-[#1a365d]">{paper.abstract}</p>
-                  <div className="space-y-2">
+                  <h2 className="text-lg sm:text-xl font-semibold text-[#1a365d]">{paper.title}</h2>
+                  <p className="text-sm sm:text-base text-gray-600">{paper.abstract}</p>
+                  <div className="flex flex-wrap gap-2">
                     {paper.downloads.map((download, index) => (
                       <Link 
                         key={index}
-                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#4052A8] font-light"
+                        className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-[#4052A8]"
                         href={download.url}
                       >
                         <Badge variant="outline" className="w-12 border-[#1a365d]">
@@ -106,7 +102,7 @@ export default function ResearchPage() {
                   </div>
                 </div>
               </div>
-              <div className="w-full md:w-2/5">
+              <div className="w-full lg:w-2/5">
                 <div className="space-y-4">
                   <div className="rounded-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300">
                     <div className="p-4 bg-slate-50 border-b border-slate-200">
@@ -134,7 +130,7 @@ export default function ResearchPage() {
             </div>
           ))}
         </div>
-      </main>
+      </div>
 
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
         <DialogContent className="w-auto h-auto max-w-[min(95vw,1200px)] max-h-[90vh] p-0 overflow-hidden">

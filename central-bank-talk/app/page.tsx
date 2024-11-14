@@ -52,10 +52,10 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-slate-100">
       <main className="flex-1">
         {/* Featured Tiles */}
-        <section className="container mx-auto px-4 py-8">
-          <div className="grid gap-6 md:grid-cols-5 lg:grid-cols-5">
+        <section className="container mx-auto px-4 py-4 sm:py-8">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-5 lg:grid-cols-5">
             {/* Main Large Tile */}
-            <Link href="/research#cbi-llm" className="relative col-span-3 overflow-hidden rounded-lg shadow-lg group">
+            <Link href="/research#cbi-llm" className="relative col-span-1 md:col-span-3 overflow-hidden rounded-lg shadow-lg group">
               <div className="absolute inset-0">
                 <img
                   src="images/website_mainpaper.avif"
@@ -64,9 +64,9 @@ export default function Page() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
               </div>
-              <div className="relative p-8 md:p-12">
-                <h2 className="mb-4 text-3xl font-bold text-amber-100 md:text-4xl">CBI and Communication</h2>
-                <p className="mb-6 max-w-[90%] text-lg text-amber-50">
+              <div className="relative p-4 sm:p-8 md:p-12 text-center sm:text-left">
+                <h2 className="mb-4 text-2xl sm:text-3xl font-bold text-amber-100 md:text-4xl">CBI and Communication</h2>
+                <p className="mb-6 max-w-[90%] text-base sm:text-lg text-amber-50">
                   Access our comprehensive analysis of how central bank independence shapes monetary policy communication.
                 </p>
                 <span className="inline-block bg-amber-100 text-blue-950 hover:bg-amber-200 px-6 py-3 rounded-md font-medium">
@@ -77,7 +77,7 @@ export default function Page() {
             </Link>
 
             {/* Right Column Tiles */}
-            <div className="col-span-2 grid gap-6">
+            <div className="col-span-1 md:col-span-2 grid gap-4 sm:gap-6">
               {/* Top Tile */}
               <Link href="/research#agenda-setting" className="relative overflow-hidden rounded-lg shadow-lg group">
                 <div className="absolute inset-0">
@@ -88,8 +88,8 @@ export default function Page() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
                 </div>
-                <div className="relative p-6">
-                  <h3 className="mb-2 text-xl font-bold text-amber-100 md:text-2xl">Eurosystem CB Network</h3>
+                <div className="relative p-4 sm:p-6">
+                  <h3 className="mb-2 text-lg sm:text-xl font-bold text-amber-100 md:text-2xl">Eurosystem CB Network</h3>
                   <p className="mb-4 text-sm text-amber-50">
                     Explore the interconnected network of the ECB and national central banks and their communication patterns.
                   </p>
@@ -110,8 +110,8 @@ export default function Page() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
                 </div>
-                <div className="relative p-6">
-                  <h3 className="mb-2 text-xl font-bold text-amber-100 md:text-2xl">LLM Classification</h3>
+                <div className="relative p-4 sm:p-6">
+                  <h3 className="mb-2 text-lg sm:text-xl font-bold text-amber-100 md:text-2xl">LLM Classification</h3>
                   <p className="mb-4 text-sm text-amber-50">
                     Discover insights through our optimizing LLMs for classification of central bank speak.
                   </p>
@@ -126,12 +126,12 @@ export default function Page() {
         </section>
 
         {/* Hero Section - Reduced top padding */}
-        <section className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-4 sm:py-8">
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-4xl font-bold tracking-tighter text-blue-950 sm:text-5xl md:text-6xl">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tighter text-blue-950 md:text-5xl lg:text-6xl">
               Explore Central Bank Communication
             </h1>
-            <p className="mt-6 max-w-[800px] text-lg text-slate-700">
+            <p className="mt-4 sm:mt-6 max-w-[800px] text-base sm:text-lg text-slate-700">
               Discover how central bank communication has evolved over time through our comprehensive analysis
               of speeches, policy statements, and research papers.
             </p>
@@ -140,7 +140,7 @@ export default function Page() {
 
         {/* Key Data Point */}
         <section className="border-t border-slate-200 bg-white">
-          <div className="container mx-auto px-4 py-24">
+          <div className="container mx-auto px-4 py-12 sm:py-24">
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="rounded-full bg-amber-100 px-4 py-1.5 text-sm font-medium text-blue-900">
                 Key Insight
@@ -167,7 +167,7 @@ export default function Page() {
                       color: "hsl(var(--chart-3))",
                     },
                   }}
-                  className="h-[400px]"
+                  className="h-[300px] sm:h-[400px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart 
@@ -308,9 +308,9 @@ export default function Page() {
                     </LineChart>
                   </ResponsiveContainer>
                 </ChartContainer>
-                <div className="mt-12 space-y-8">
+                <div className="mt-8 sm:mt-12 space-y-4 sm:space-y-8">
                   {/* Data source explanation with visual separation */}
-                  <div className="relative py-6 px-8 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="relative py-4 sm:py-6 px-4 sm:px-8 bg-slate-50 rounded-lg border border-slate-100">
                     <div className="flex flex-col gap-4">
                       <h3 className="text-lg font-semibold text-blue-950">Data Source</h3>
                       <p className="text-sm text-slate-600 leading-relaxed">
@@ -320,7 +320,7 @@ export default function Page() {
                   </div>
                   
                   {/* Coverage visualization with subtle styling */}
-                  <div className="bg-white rounded-lg border border-slate-100 p-8">
+                  <div className="bg-white rounded-lg border border-slate-100 p-4 sm:p-8">
                     <div className="space-y-6">
                       <div className="flex items-center gap-2">
                         <svg
