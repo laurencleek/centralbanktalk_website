@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, KeyboardEvent } from 'react'
+import { useState, useEffect, useRef, KeyboardEvent, useCallback } from 'react'
 import Link from "next/link"
 import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText, List, BarChart2, PieChart as PieChartIcon, TrendingUp as TrendingUpIcon, Info } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -25,6 +25,7 @@ export default function DataPage() {
   const [bankData, setBankData] = useState(null)
   const preselectedBank = { key: "european_central_bank", value: "European Central Bank" }
   const dropdownRef = useRef(null)
+  const [activeSection, setActiveSection] = useState("")
 
   const { data: centralBanks, isLoading, error } = useData("/data/central_banks/central_banks.json")
 
@@ -141,7 +142,7 @@ export default function DataPage() {
       <Card className="shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="flex items-center">
-            <PieChart className="mr-2 h-5 w-5 text-blue-600" />
+            <PieChart className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
             Audience Distribution
           </CardTitle>
           <CardDescription>
@@ -263,6 +264,68 @@ export default function DataPage() {
     }))
   }
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      {
+        rootMargin: '-20% 0% -35% 0%'
+      }
+    )
+
+    const sections = ['key-facts', 'communication-frequency', 'audience-distribution', 'policy-pressures']
+    sections.forEach(id => {
+      const element = document.getElementById(id)
+      if (element) observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  const TableOfContents = useCallback(() => {
+    const sections = [
+      { id: 'key-facts', title: 'Key Facts & Topics', icon: List },
+      { id: 'communication-frequency', title: 'Communication Frequency', icon: TrendingUpIcon },
+      { id: 'audience-distribution', title: 'Audience Distribution', icon: PieChartIcon },
+      { id: 'policy-pressures', title: 'Policy Pressures', icon: BarChart }
+    ]
+
+    return (
+      <Card className="shadow-lg mt-4">
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <List className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
+            Table of Contents
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <nav className="space-y-1">
+            {sections.map(({ id, title, icon: Icon }) => (
+              <Link
+                key={id}
+                href={`#${id}`}
+                className={`
+                  flex items-center px-3 py-2 text-sm rounded-md transition-colors
+                  ${activeSection === id 
+                    ? 'bg-[hsl(var(--brand-primary))] text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'}
+                `}
+              >
+                <Icon className={`mr-2 h-4 w-4 ${activeSection === id ? 'text-white' : 'text-[hsl(var(--brand-primary))]'}`} />
+                {title}
+              </Link>
+            ))}
+          </nav>
+        </CardContent>
+      </Card>
+    )
+  }, [activeSection])
+
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
 
@@ -297,33 +360,33 @@ export default function DataPage() {
       />
       <div className="section-container">
         <div className="mb-8">
-          <div className="grid grid-cols-4 gap-4"> {/* Changed to 4 columns */}
+          <div className="grid grid-cols-4 gap-4">
             <Link 
               href="#key-facts" 
               className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
             >
-              <List className="h-6 w-6 text-blue-600" />
+              <List className="h-6 w-6 text-[hsl(var(--brand-primary))]" />
               <span className="text-sm font-medium text-gray-700">Key Facts & Topics</span>
             </Link>
             <Link 
               href="#communication-frequency" 
               className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
             >
-              <TrendingUpIcon className="h-6 w-6 text-blue-600" />
+              <TrendingUpIcon className="h-6 w-6 text-[hsl(var(--brand-primary))]" />
               <span className="text-sm font-medium text-gray-700">Communication Frequency</span>
             </Link>
             <Link 
               href="#audience-distribution" 
               className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
             >
-              <PieChartIcon className="h-6 w-6 text-blue-600" />
+              <PieChartIcon className="h-6 w-6 text-[hsl(var(--brand-primary))]" />
               <span className="text-sm font-medium text-gray-700">Audience Distribution</span>
             </Link>
             <Link 
               href="#policy-pressures" 
               className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
             >
-              <BarChart className="h-6 w-6 text-blue-600" />
+              <BarChart className="h-6 w-6 text-[hsl(var(--brand-primary))]" />
               <span className="text-sm font-medium text-gray-700">Policy Pressures</span>
             </Link>
           </div>
@@ -331,11 +394,11 @@ export default function DataPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
-            <div className="sticky top-24">
+            <div className="sticky top-24 space-y-4">
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <MapPin className="mr-2 h-5 w-5 text-blue-600" />
+                    <MapPin className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
                     Search Central Banks
                   </CardTitle>
                   <CardDescription>
@@ -374,6 +437,7 @@ export default function DataPage() {
                   </CardDescription>
                 </CardHeader>
               </Card>
+              <TableOfContents />
             </div>
           </div>
 
@@ -393,14 +457,14 @@ export default function DataPage() {
                     <h3 className="font-semibold text-lg text-slate-800 mb-4">Key Facts</h3>
                     <div className="space-y-4">
                       <div className="flex items-center">
-                        <MessageSquare className="h-5 w-5 text-blue-600 mr-2" />
+                        <MessageSquare className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                         <span className="text-sm font-medium text-slate-700">Number of Speeches:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">
                           {bankData ? bankData.number_of_speeches.reduce((a, b) => a + b, 0) : 'N/A'}
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <Users className="h-5 w-5 text-blue-600 mr-2" />
+                        <Users className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                         <span className="text-sm font-medium text-slate-700">Unique Speakers:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">
                           {bankData ? bankData.number_of_speakers : 'N/A'}
@@ -408,7 +472,7 @@ export default function DataPage() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center">
-                          <User className="h-5 w-5 text-blue-600 mr-2" />
+                          <User className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                           <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
                         </div>
                         {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
@@ -416,26 +480,26 @@ export default function DataPage() {
                             key={speaker.name}
                             className="flex items-center space-x-2 ml-7 text-sm text-slate-900"
                           >
-                            <span className="text-blue-600 font-semibold">{index + 1}.</span>
+                            <span className="text-[hsl(var(--brand-primary))] font-semibold">{index + 1}.</span>
                             <span>{speaker.name}</span>
                             <span className="text-slate-500">({speaker.count})</span>
                           </div>
                         ))}
                       </div>
                       <div className="flex items-center">
-                        <FileText className="h-5 w-5 text-blue-600 mr-2" />
+                        <FileText className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                         <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
                       </div>
                       <div className="flex items-center">
-                        <MapPin className="h-5 w-5 text-blue-600 mr-2" />
+                        <MapPin className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                         <span className="text-sm font-medium text-slate-700">Headquarters:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">
                           {bankData ? bankData.cb_location : 'N/A'}
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <Coins className="h-5 w-5 text-blue-600 mr-2" />
+                        <Coins className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                         <span className="text-sm font-medium text-slate-700">Currency:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">
                           {bankData ? bankData.currency : 'N/A'}
@@ -458,7 +522,7 @@ export default function DataPage() {
                           </div>
                           <div className="w-full bg-slate-100 h-2 rounded-full">
                             <div 
-                              className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-in-out"
+                              className="bg-[hsl(var(--brand-primary))] h-2 rounded-full transition-all duration-300 ease-in-out"
                               style={{ width: `${percentage * 100}%` }}
                             />
                           </div>
@@ -473,7 +537,7 @@ export default function DataPage() {
             <Card className="shadow-lg" id="communication-frequency">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <TrendingUp className="mr-2 h-5 w-5 text-blue-600" />
+                  <TrendingUp className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
                   Communication Frequency Over Time
                 </CardTitle>
                 <CardDescription>Number of speeches per year</CardDescription>
@@ -513,7 +577,7 @@ export default function DataPage() {
                       <Line
                         type="monotone"
                         dataKey="speeches"
-                        stroke="#3b82f6"
+                        stroke="hsl(var(--brand-primary))"
                         strokeWidth={2}
                         dot={{ r: 4 }}
                         activeDot={{ r: 6 }}
@@ -531,14 +595,14 @@ export default function DataPage() {
             {bankData && (
               <div id="policy-pressures" className="relative">
                 <div className="absolute top-4 right-4 group z-10">
-                  <Info className="h-5 w-5 text-blue-600 cursor-help" />
+                  <Info className="h-5 w-5 text-[hsl(var(--brand-primary))] cursor-help" />
                   <div className="hidden group-hover:block absolute right-0 w-80 p-2 bg-white border border-gray-200 rounded-lg shadow-lg text-sm">
                     We define these based on responses of central banks to pressures. For more information on the index construction and examples see the paper Introducing Textual Measures of Central Bank Policy-Linkages Using ChatGPT in the Recent Papers tab.
                   </div>
                 </div>
                 <PolicyPressuresChart bankData={bankData}/>
                 <div className="mt-2 text-sm text-gray-500 text-right">
-                  Source: <Link href="/research" className="text-blue-600 hover:underline">Research</Link>
+                  Source: <Link href="/research" className="text-[hsl(var(--brand-primary))] hover:underline">Research</Link>
                 </div>
               </div>
             )}
