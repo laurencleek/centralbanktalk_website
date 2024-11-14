@@ -39,10 +39,10 @@ export default function ResearchPage() {
       abstract: "It has been well-established that central bank policy agendas are shaped by various factors, including the spread of ideas, individual governors' agency, and economic and political pressures. However, most responsiveness and agenda-setting studies treat central banks as relatively autonomous entities, overlooking the unique multi-layered structure of the Eurosystem, which includes both the European Central Bank (ECB) and National Central Banks (NCBs). How does this institutional setup influence responsiveness and agenda-setting dynamics within the Eurosystem? This study argues that NCBs act as intermediaries, channeling national priorities to the ECB level. Using a transformer model for topic modeling, alongside sequence and cross-sectional time-series analyses of ECB and NCB speeches from 1997 to mid-2022, I find that 'new' agenda issues are driven primarily by NCBs' informational roles, while established issues respond to pressures from member states. By revealing how institutional structure shapes issue responsiveness, I contribute to how central banks balance national pressures with broader mandates revealing how responsiveness is not uniform but influenced by hierarchical structures and internal member dynamics.",
       downloads: [],
       mainFigure: {
-        title: "Network visualization of ECB and NCB communication patterns",
+        title: "Markov transition matrix showing the responsiveness of the ECB and NCBs in the topics they discuss.",
         image: "/papers/spread_of_ideas/main_graph_spread_of_ideas.png"
       },
-      figureNote: "Based on 15,000 speeches from ECB and NCBs"
+      figureNote: "Based on over 4000 speeches from the Eurosystem (the ECB Executive Board and the 'big' 5 NCBs). The topics are extracted using BERTopic with time2vec elements."
     },
     {
       id: 3,
