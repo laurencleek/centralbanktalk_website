@@ -514,16 +514,30 @@ export default function DataPage() {
                 <DialogTitle>{selectedSpeech?.title}</DialogTitle>
               </DialogHeader>
 
-              <div className="grid gap-2 text-sm">
-                <p><span className="font-medium">Date:</span> {selectedSpeech?.date && formatDate(selectedSpeech.date)}</p>
-                <p><span className="font-medium">Speaker:</span> {selectedSpeech?.speaker}</p>
-                <p><span className="font-medium">Position:</span> {selectedSpeech?.position}</p>
-                <p><span className="font-medium">Central Bank:</span> {centralBanks?.[selectedSpeech?.central_bank || ""] || selectedSpeech?.central_bank}</p>
-                <p><span className="font-medium">Audience:</span> {selectedSpeech?.audience}</p>
+              <div className="grid gap-0 text-sm">
+                <div className="p-3 border-b border-blue-300">
+                  <p><span className="font-medium">Date:</span> {selectedSpeech?.date && formatDate(selectedSpeech.date)}</p>
+                </div>
+                <div className="p-3 border-b border-blue-300">
+                  <p><span className="font-medium">Speaker:</span> {selectedSpeech?.speaker}</p>
+                </div>
+                <div className="p-3 border-b border-blue-300">
+                  <p><span className="font-medium">Position:</span> {selectedSpeech?.position}</p>
+                </div>
+                <div className="p-3 border-b border-blue-300">
+                  <p><span className="font-medium">Central Bank:</span> {centralBanks?.[selectedSpeech?.central_bank || ""] || selectedSpeech?.central_bank}</p>
+                </div>
+                <div className="p-3 border-b border-blue-300">
+                  <p><span className="font-medium">Audience:</span> {selectedSpeech?.audience}</p>
+                </div>
                 {selectedSpeech?.location && (
-                  <p><span className="font-medium">Location:</span> {selectedSpeech.location}</p>
+                  <div className="p-3 border-b border-blue-300">
+                    <p><span className="font-medium">Location:</span> {selectedSpeech.location}</p>
+                  </div>
                 )}
-                <p><span className="font-medium">Description:</span> {selectedSpeech?.description}</p>
+                <div className="p-3">
+                  <p><span className="font-medium">Description:</span> {selectedSpeech?.description}</p>
+                </div>
               </div>
 
               {speechContent?.topics && (

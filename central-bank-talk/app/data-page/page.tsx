@@ -475,6 +475,9 @@ export default function DataPage() {
                             {bankData ? bankData.number_of_speeches.reduce((a, b) => a + b, 0) : 'N/A'}
                           </span>
                         </div>
+                        
+                        <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+                        
                         <div className="flex items-center">
                           <Users className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                           <span className="text-sm font-medium text-slate-700">Unique Speakers:</span>
@@ -482,6 +485,9 @@ export default function DataPage() {
                             {bankData ? bankData.number_of_speakers : 'N/A'}
                           </span>
                         </div>
+
+                        <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+                        
                         <div className="space-y-2">
                           <div className="flex items-center">
                             <User className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
@@ -498,11 +504,17 @@ export default function DataPage() {
                             </div>
                           ))}
                         </div>
+
+                        <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+                        
                         <div className="flex items-center">
                           <FileText className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                           <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
                           <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
                         </div>
+
+                        <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+                        
                         <div className="flex items-center">
                           <MapPin className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                           <span className="text-sm font-medium text-slate-700">Headquarters:</span>
@@ -510,6 +522,9 @@ export default function DataPage() {
                             {bankData ? bankData.cb_location : 'N/A'}
                           </span>
                         </div>
+
+                        <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+                        
                         <div className="flex items-center">
                           <Coins className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
                           <span className="text-sm font-medium text-slate-700">Currency:</span>
