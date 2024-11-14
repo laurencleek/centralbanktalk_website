@@ -22,8 +22,13 @@ export default function ResearchPage() {
       date: "JULY 2024",
       abstract: "Although central bank communication is a core monetary policy and accountability tool for central banks, little is known about what shapes it. This paper develops and tests a theory regarding a previously unconsidered variable: central bank independence (CBI). We argue that increases in CBI alter the pressures a central bank faces and amends the reputation costs of not addressing these. We fine-tune and validate a Large Language Model (Google's Gemini) to develop novel monetary policy indices in speeches of 100 central banks from 1997 to 2023. Employing a staggered difference-in-differences and an instrumental variable approach, we find robust evidence that an increase in independence decreases communication portraying central banks to be in full control of their monetary policy conduct and increases communication reflecting financial pressures. These results are not, as generally is assumed, confounded by general changes in communication over time or singular events, in particular, the financial crisis.",
       downloads: [
-        { type: "PDF", label: "Presentation Slides" },
-      ]
+        { type: "PDF", label: "Presentation Slides", url: "/papers/cbi_llm/CBI_LLM_08_May.pdf" },
+      ],
+      mainFigure: {
+        title: "Distribution of central bank independence across time and countries",
+        image: "/papers/cbi_llm/main_graph_cbi_llm.png"
+      },
+      figureNote: "Data from 100 central banks (1997-2023)"
     },
     {
       id: 2,
@@ -32,7 +37,12 @@ export default function ResearchPage() {
       authors: ["Lauren Leek"],
       date: "JUNE 2024",
       abstract: "It has been well-established that central bank policy agendas are shaped by various factors, including the spread of ideas, individual governors' agency, and economic and political pressures. However, most responsiveness and agenda-setting studies treat central banks as relatively autonomous entities, overlooking the unique multi-layered structure of the Eurosystem, which includes both the European Central Bank (ECB) and National Central Banks (NCBs). How does this institutional setup influence responsiveness and agenda-setting dynamics within the Eurosystem? This study argues that NCBs act as intermediaries, channeling national priorities to the ECB level. Using a transformer model for topic modeling, alongside sequence and cross-sectional time-series analyses of ECB and NCB speeches from 1997 to mid-2022, I find that 'new' agenda issues are driven primarily by NCBs' informational roles, while established issues respond to pressures from member states. By revealing how institutional structure shapes issue responsiveness, I contribute to how central banks balance national pressures with broader mandates revealing how responsiveness is not uniform but influenced by hierarchical structures and internal member dynamics.",
-      downloads: []
+      downloads: [],
+      mainFigure: {
+        title: "Network visualization of ECB and NCB communication patterns",
+        image: "/papers/spread_of_ideas/main_graph_spread_of_ideas.png"
+      },
+      figureNote: "Based on 15,000 speeches from ECB and NCBs"
     },
     {
       id: 3,
@@ -42,9 +52,14 @@ export default function ResearchPage() {
       date: "PREPRINT FEBRUARY 2024",
       abstract: "While institutionally independent, monetary policy-makers do not operate in a vacuum. The policy choices of a central bank are intricately linked to government policies and financial markets. We present novel indices of monetary, fiscal and financial policy-linkages based on central bank communication, namely, speeches by 118 central banks worldwide from 1997 to mid-2023. Our indices measure not only instances of monetary, fiscal or financial dominance but, importantly, also identify communication that aims to coordinate monetary policy with the government and financial markets. To create our indices, we use a Large Language Model (ChatGPT 3.5-0301) and provide transparent prompt-engineering steps, considering both accuracy on the basis of a manually coded dataset as well as efficiency regarding token usage. We also test several model improvements and provide descriptive statistics of the trends of the indices over time and across central banks including correlations with political-economic variables.",
       downloads: [
-        { type: "PDF", label: "Full Paper" },
-        { type: "ZIP", label: "Replication Files" },
-      ]
+        { type: "PDF", label: "Full Paper", url: "https://osf.io/preprints/socarxiv/78wnp" },
+        { type: "ZIP", label: "Replication Files", url: "https://github.com/sbischl/cb-policy-LLM" },
+      ],
+      mainFigure: {
+        title: "Comparison of different LLM architectures for classification tasks",
+        image: "/papers/pressures_measurement/main_graph_measurement.png"
+      },
+      figureNote: "Analysis of 50,000 central bank speech paragraphs"
     }
   ]
 
@@ -76,7 +91,7 @@ export default function ResearchPage() {
                       <Link 
                         key={index}
                         className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#4052A8] font-light"
-                        href="#"
+                        href={download.url}
                       >
                         <Badge variant="outline" className="w-12 border-[#1a365d]">
                           {download.type}
@@ -92,31 +107,21 @@ export default function ResearchPage() {
                   <div className="rounded-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300">
                     <div className="p-4 bg-slate-50 border-b border-slate-200">
                       <p className="font-medium text-sm text-[#1a365d] mb-1">Main Figure</p>
-                      <p className="text-sm text-slate-600">
-                        {index === 0 ? "Distribution of central bank independence across time and countries" :
-                         index === 1 ? "Network visualization of ECB and NCB communication patterns" :
-                         "Comparison of different LLM architectures for classification tasks"}
-                      </p>
+                      <p className="text-sm text-slate-600">{paper.mainFigure.title}</p>
                     </div>
                     <div 
                       className="group cursor-pointer transition-all duration-300"
-                      onClick={() => setSelectedImage(index === 0 ? "/papers/paper1.png" : 
-                                                     index === 1 ? "/papers/paper2.png" : 
-                                                     "/papers/paper3.png")}
+                      onClick={() => setSelectedImage(paper.mainFigure.image)}
                     >
                       <img
                         alt="Paper thumbnail"
                         className="w-full h-auto transform transition-all duration-300 group-hover:scale-[1.02] group-hover:brightness-105"
-                        src={index === 0 ? "/papers/paper1.png" : 
-                             index === 1 ? "/papers/paper2.png" : 
-                             "/papers/paper3.png"}
+                        src={paper.mainFigure.image}
                       />
                     </div>
                     <div className="p-4 bg-slate-50 border-t border-slate-200">
                       <p className="text-xs text-slate-500 italic">
-                        Note: {index === 0 ? "Data from 100 central banks (1997-2023)" :
-                              index === 1 ? "Based on 15,000 speeches from ECB and NCBs" :
-                              "Analysis of 50,000 central bank speech paragraphs"}
+                        Note: {paper.figureNote}
                       </p>
                     </div>
                   </div>
