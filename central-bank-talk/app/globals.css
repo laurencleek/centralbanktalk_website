@@ -125,4 +125,24 @@ body {
   .card-container {
     @apply bg-[hsl(var(--surface-card))] rounded-lg border shadow-lg p-6;
   }
+
+  .nav-link {
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #1e3a8a;
+    transition: all 0.3s ease-in-out;
+    transform: translateX(-50%);
+  }
+
+  .nav-link:hover::after {
+    width: 80%;
+  }
 }

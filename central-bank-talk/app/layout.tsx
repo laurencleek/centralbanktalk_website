@@ -57,7 +57,7 @@ export default function RootLayout({
                       <div key={item.name} className="flex items-center">
                         <Link
                           href={item.href}
-                          className="px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-blue-900 hover:bg-blue-50 rounded-md"
+                          className="nav-link px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-blue-900 rounded-md"
                         >
                           {item.name}
                         </Link>
