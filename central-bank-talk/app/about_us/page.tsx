@@ -115,8 +115,9 @@ export default function AboutPage() {
       {/* Contact Section */}
       <section className="bg-gray-50 py-16 px-4">
         <div className="container mx-auto max-w-5xl text-center">
-          <h2 className="text-2xl font-medium text-gray-900 mb-4">Contact Us</h2>
+          <h2 className="text-2xl font-medium text-gray-900 mb-4">Want to contact us?</h2>
           <p className="text-gray-600">
+            Drop us a line at:{' '}
             <Link href="mailto:info@centralbanktalk.eu" className="text-indigo-600 hover:text-indigo-800 transition-colors">
               info@centralbanktalk.eu
             </Link>
