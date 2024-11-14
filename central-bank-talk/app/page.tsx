@@ -4,12 +4,49 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useData } from '@/contexts/DataContext'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Label } from "recharts"
+import { ChartContainer } from "@/components/ui/chart"
+import { useState, useEffect } from 'react'
 
 export default function Page() {
   const { data, isLoading, error } = useData("data/central_banks/central_banks.json");
+  const { data: worldData } = useData("data/world_year_dom.json");
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  const chartData = worldData ? Object.entries(worldData).map(([year, values]: [string, any]) => ({
+    year: parseInt(year),
+    monetary: Number((values.monetary_dominance * 100).toFixed(2)),
+    fiscal: Number((values.fiscal_dominance * 100).toFixed(2)),
+    financial: Number((values.financial_dominance * 100).toFixed(2)),
+  })).sort((a, b) => a.year - b.year) : [];
+
+  // Add this function to get the last value for each metric
+  const getLastValues = () => {
+    if (!chartData.length) return null;
+    const lastPoint = chartData[chartData.length - 1];
+    return {
+      monetary: lastPoint.monetary,
+      fiscal: lastPoint.fiscal,
+      financial: lastPoint.financial,
+      year: lastPoint.year
+    };
+  };
+
+  // Add this function to get y-values for latest data point
+  const getLastDataPoint = () => {
+    if (!chartData.length) return null;
+    const lastPoint = chartData[chartData.length - 1];
+    return {
+      monetary: { x: lastPoint.year + 0.5, y: lastPoint.monetary },
+      fiscal: { x: lastPoint.year + 0.5, y: lastPoint.fiscal },
+      financial: { x: lastPoint.year + 0.5, y: lastPoint.financial }
+    };
+  };
+
+  const lastValues = getLastValues();
+  const lastPoint = getLastDataPoint();
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-100">
@@ -111,15 +148,205 @@ export default function Page() {
               <h2 className="max-w-[800px] text-3xl font-bold tracking-tighter text-blue-950 sm:text-4xl">
                 Central banks are increasingly responding in their communication to various political and market pressures
               </h2>
-              <p className="max-w-[800px] text-sm text-slate-600 mt-4">
-                Central bank communication has gone from being something 'not done' to a core tool of central banks over the past three decades. Lauren's PhD project aims to discover systematic patterns to give insights into this major transformation. She does this in several ways including through joint papers Simeon and Maximilian. First, we (Lauren, Simeon and Maximilian) propose a novel LLM based method to measure responses of central banks to various pressures in their monetary communication. Second, we (Lauren and Simeon) examine how central bank independence shapes these responses. Third, Lauren examines how institutional aspects, in this case the Eurosystem multi-level set-up, influences agenda-setting and responsiveness in the communication of central banks. This website allows insights into the data used for all these projects.
+              <p className="max-w-[800px] text-base text-slate-700 mt-4 leading-relaxed">
+                Based on a large sample of central bank speeches, we uncover the responses in communication of central bankers to various pressures. Below these responses are summarised as monetary, fiscal, and financial dominance, which can be tracked over time.
               </p>
-              <div className="mt-8 w-full max-w-4xl">
-                <img
-                  src="/images/placeholder_map.png"
-                  alt="Placeholder for data visualization"
-                  className="h-auto w-full rounded-lg shadow-lg"
-                />
+              <div className="mt-8 w-full">
+                <ChartContainer
+                  config={{
+                    monetary: {
+                      label: "Monetary Dominance",
+                      color: "hsl(var(--chart-1))",
+                    },
+                    fiscal: {
+                      label: "Fiscal Dominance",
+                      color: "hsl(var(--chart-2))",
+                    },
+                    financial: {
+                      label: "Financial Dominance",
+                      color: "hsl(var(--chart-3))",
+                    },
+                  }}
+                  className="h-[400px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart 
+                      data={chartData}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                      <XAxis 
+                        dataKey="year" 
+                        className="text-xs text-muted-foreground" 
+                        tickMargin={10}
+                      />
+                      <YAxis 
+                        className="text-xs text-muted-foreground"
+                        tickMargin={10}
+                        domain={[0, 100]}
+                        tickFormatter={(value) => `${value}%`}
+                      />
+                      <Tooltip
+                        content={({ active, payload, label }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="flex flex-col">
+                                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                      Year
+                                    </span>
+                                    <span className="font-bold text-muted-foreground">
+                                      {label}
+                                    </span>
+                                  </div>
+                                  {payload.map((entry) => (
+                                    <div key={entry.name} className="flex flex-col">
+                                      <span 
+                                        className="text-[0.70rem] uppercase"
+                                        style={{ color: entry.color }}
+                                      >
+                                        {entry.name}
+                                      </span>
+                                      <span className="font-bold" style={{ color: entry.color }}>
+                                        {Number(entry.value).toFixed(2)}%
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        }}
+                      />
+
+                      <Legend 
+                        verticalAlign="bottom"
+                        height={36}
+                        content={({ payload }) => {
+                          if (payload && payload.length) {
+                            return (
+                              <div className="flex justify-center gap-6 pt-4">
+                                {payload.map((entry) => (
+                                  <div key={entry.value} className="flex items-center gap-2">
+                                    <div 
+                                      className="h-3 w-3 rounded-full"
+                                      style={{ backgroundColor: entry.color }}
+                                    />
+                                    <span className="text-sm font-medium">
+                                      {entry.value}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )
+                          }
+                          return null
+                        }}
+                      />
+                      
+                      {lastPoint && (
+                        <>
+                          <text
+                            x={lastPoint.monetary.x}
+                            y={lastPoint.monetary.y}
+                            textAnchor="start"
+                            fill="hsl(var(--chart-1))"
+                            fontSize={12}
+                            dy={4}
+                          >
+                            Monetary Dominance
+                          </text>
+                          <text
+                            x={lastPoint.fiscal.x}
+                            y={lastPoint.fiscal.y}
+                            textAnchor="start"
+                            fill="hsl(var(--chart-2))"
+                            fontSize={12}
+                            dy={4}
+                          >
+                            Fiscal Dominance
+                          </text>
+                          <text
+                            x={lastPoint.financial.x}
+                            y={lastPoint.financial.y}
+                            textAnchor="start"
+                            fill="hsl(var(--chart-3))"
+                            fontSize={12}
+                            dy={4}
+                          >
+                            Financial Dominance
+                          </text>
+                        </>
+                      )}
+
+                      <Line
+                        type="monotone"
+                        dataKey="monetary"
+                        stroke="hsl(var(--chart-1))"
+                        strokeWidth={3}
+                        dot={false}
+                        name="Monetary Dominance"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="fiscal"
+                        stroke="hsl(var(--chart-2))"
+                        strokeWidth={3}
+                        dot={false}
+                        name="Fiscal Dominance"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="financial"
+                        stroke="hsl(var(--chart-3))"
+                        strokeWidth={3}
+                        dot={false}
+                        name="Financial Dominance"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+                <div className="mt-12 space-y-8">
+                  {/* Data source explanation with visual separation */}
+                  <div className="relative py-6 px-8 bg-slate-50 rounded-lg border border-slate-100">
+                    <div className="flex flex-col gap-4">
+                      <h3 className="text-lg font-semibold text-blue-950">Data Source</h3>
+                      <p className="text-sm text-slate-600 leading-relaxed">
+                        We construct indices of pressures by applying a large language model to classify individual sentences in the central bank speeches database of the Bank of International Settlements, covering communications from more than 100 central banks worldwide.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Coverage visualization with subtle styling */}
+                  <div className="bg-white rounded-lg border border-slate-100 p-8">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-5 w-5 text-blue-950"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                          <path d="M2 12h20" />
+                        </svg>
+                        <h3 className="text-lg font-semibold text-blue-950">Global Coverage of Central Bank Communication</h3>
+                      </div>
+                      <img
+                        src="images/speeches_coverage.png"
+                        alt="Global coverage of central bank speeches"
+                        className="w-full rounded-lg shadow-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
