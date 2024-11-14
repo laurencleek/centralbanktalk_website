@@ -1,10 +1,11 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from 'lucide-react'
+import { Card } from "@/components/ui/card"
 
 const memes = [
-    { id: 1, title: "Central Bank Meme 1", src: "memes/supermeme_10h14_41.png"},
-    { id: 2, title: "Central Bank Meme 2", src: "memes/supermeme_10h22_25.png"}
+  { id: 1, src: "memes/supermeme_10h14_41.png" },
+  { id: 2, src: "memes/supermeme_10h22_25.png" }
 ]
 
 export default function MemesPage() {
@@ -28,28 +29,18 @@ export default function MemesPage() {
           <div className="mt-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
         </div>
 
-        {/* Memes Grid */}
-        <div className="max-w-4xl mx-auto grid gap-8">
+        {/* Memes Stack */}
+        <div className="max-w-2xl mx-auto space-y-8 flex flex-col items-center">
           {memes.map((meme) => (
-            <div 
-              key={meme.id} 
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-            >
-              <div className="p-4 border-b border-slate-100">
-                <h2 className="text-lg font-medium text-slate-700">{meme.title}</h2>
-              </div>
-              <div className="relative flex justify-center p-4">
-                <div className="relative w-full max-w-2xl aspect-[16/9]">
-                  <Image
-                    src={meme.src}
-                    alt={meme.title}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-              </div>
-            </div>
+            <Card key={meme.id} className="overflow-hidden inline-flex p-0">
+              <Image
+                src={meme.src}
+                alt="Central Bank Meme"
+                width={800}
+                height={800}
+                className="rounded-lg max-w-full max-h-[80vh] w-auto h-auto"
+              />
+            </Card>
           ))}
         </div>
       </main>
