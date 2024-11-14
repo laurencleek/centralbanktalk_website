@@ -13,6 +13,7 @@ import InteractiveCentralBankMap from '@/components/ui/interactive-map'
 import { SectionHeader } from "@/components/ui/section-header"
 import { DataCard } from "@/components/ui/data-card"
 import { PageHeader } from "@/components/ui/page-header"
+import { InfoTooltip } from "@/components/ui/info-tooltip"
 
 import { useData } from '@/contexts/DataContext'
 
@@ -137,81 +138,84 @@ export default function DataPage() {
     )
   }
   
-  const AudienceDistributionCard = ({ audienceData }) => {
+  const AudienceDistributionCard = ({ audienceData, tooltipContent }) => {
     return (
       <Card className="shadow-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="flex items-center">
-            <PieChart className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
-            Audience Distribution
-          </CardTitle>
-          <CardDescription>
-            Distribution of speech audiences by category
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {audienceData.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-              <div className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsDonutChart>
-                    <Pie
-                      data={audienceData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {audienceData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={AUDIENCE_COLORS[entry.name]} 
-                          className="stroke-background hover:opacity-80 transition-opacity"
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-2 border border-gray-300 rounded shadow">
-                              <p className="text-sm font-bold">{`${payload[0].name}: ${payload[0].value.toFixed(1)}%`}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  </RechartsDonutChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="space-y-3">
-                {audienceData.map((entry) => (
-                  <div key={entry.name} className="space-y-1">
-                    <div className="flex items-center">
-                      <div 
-                        className="w-3 h-3 rounded-full mr-2" 
-                        style={{ backgroundColor: AUDIENCE_COLORS[entry.name] }}
+        <div className="relative">
+          <InfoTooltip content={tooltipContent} />
+          <CardHeader className="space-y-1">
+            <CardTitle className="flex items-center">
+              <PieChart className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
+              Audience Distribution
+            </CardTitle>
+            <CardDescription>
+              Distribution of speech audiences by category
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {audienceData.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <div className="h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsDonutChart>
+                      <Pie
+                        data={audienceData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {audienceData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={AUDIENCE_COLORS[entry.name]} 
+                            className="stroke-background hover:opacity-80 transition-opacity"
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                                <p className="text-sm font-bold">{`${payload[0].name}: ${payload[0].value.toFixed(1)}%`}</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
                       />
-                      <span className="text-sm font-medium capitalize">
-                        {entry.name} ({entry.value.toFixed(1)}%)
-                      </span>
+                    </RechartsDonutChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="space-y-3">
+                  {audienceData.map((entry) => (
+                    <div key={entry.name} className="space-y-1">
+                      <div className="flex items-center">
+                        <div 
+                          className="w-3 h-3 rounded-full mr-2" 
+                          style={{ backgroundColor: AUDIENCE_COLORS[entry.name] }}
+                        />
+                        <span className="text-sm font-medium capitalize">
+                          {entry.name} ({entry.value.toFixed(1)}%)
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground pl-5">
+                        {AUDIENCE_DESCRIPTIONS[entry.name]}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground pl-5">
-                      {AUDIENCE_DESCRIPTIONS[entry.name]}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="h-[200px] flex items-center justify-center">
-              <p className="text-muted-foreground">No audience data available</p>
-            </div>
-          )}
-        </CardContent>
+            ) : (
+              <div className="h-[200px] flex items-center justify-center">
+                <p className="text-muted-foreground">No audience data available</p>
+              </div>
+            )}
+          </CardContent>
+        </div>
       </Card>
     )
   }
@@ -443,167 +447,177 @@ export default function DataPage() {
 
           <div className="md:col-span-2 space-y-6">
             <Card className="shadow-lg" id="key-facts">
-              <CardHeader>
-                <CardTitle className="text-2xl text-blue-900">
-                  {selectedBank ? selectedBank.value : preselectedBank.value}
-                </CardTitle>
-                <CardDescription>
-                  Central Bank of {selectedBank ? selectedBank.value : preselectedBank.value}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Key Facts</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center">
-                        <MessageSquare className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                        <span className="text-sm font-medium text-slate-700">Number of Speeches:</span>
-                        <span className="ml-auto text-sm font-bold text-slate-900">
-                          {bankData ? bankData.number_of_speeches.reduce((a, b) => a + b, 0) : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <Users className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                        <span className="text-sm font-medium text-slate-700">Unique Speakers:</span>
-                        <span className="ml-auto text-sm font-bold text-slate-900">
-                          {bankData ? bankData.number_of_speakers : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="space-y-2">
+              <div className="relative">
+                <InfoTooltip 
+                  content="Topics extracted by Google Gemini on the speech level."
+                  link={{
+                    text: "How Central Bank Independence Shapes Monetary Policy Communication: A Large Language Model Application",
+                    href: "#cbi-llm"
+                  }}
+                />
+                <CardHeader>
+                  <CardTitle className="text-2xl text-blue-900">
+                    {selectedBank ? selectedBank.value : preselectedBank.value}
+                  </CardTitle>
+                  <CardDescription>
+                    Central Bank of {selectedBank ? selectedBank.value : preselectedBank.value}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="font-semibold text-lg text-slate-800 mb-4">Key Facts</h3>
+                      <div className="space-y-4">
                         <div className="flex items-center">
-                          <User className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                          <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
+                          <MessageSquare className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Number of Speeches:</span>
+                          <span className="ml-auto text-sm font-bold text-slate-900">
+                            {bankData ? bankData.number_of_speeches.reduce((a, b) => a + b, 0) : 'N/A'}
+                          </span>
                         </div>
-                        {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
-                          <div
-                            key={speaker.name}
-                            className="flex items-center space-x-2 ml-7 text-sm text-slate-900"
-                          >
-                            <span className="text-[hsl(var(--brand-primary))] font-semibold">{index + 1}.</span>
-                            <span>{speaker.name}</span>
-                            <span className="text-slate-500">({speaker.count})</span>
+                        <div className="flex items-center">
+                          <Users className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Unique Speakers:</span>
+                          <span className="ml-auto text-sm font-bold text-slate-900">
+                            {bankData ? bankData.number_of_speakers : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center">
+                            <User className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
+                            <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
                           </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center">
-                        <FileText className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                        <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
-                        <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
-                      </div>
-                      <div className="flex items-center">
-                        <MapPin className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                        <span className="text-sm font-medium text-slate-700">Headquarters:</span>
-                        <span className="ml-auto text-sm font-bold text-slate-900">
-                          {bankData ? bankData.cb_location : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <Coins className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                        <span className="text-sm font-medium text-slate-700">Currency:</span>
-                        <span className="ml-auto text-sm font-bold text-slate-900">
-                          {bankData ? bankData.currency : 'N/A'}
-                        </span>
+                          {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
+                            <div
+                              key={speaker.name}
+                              className="flex items-center space-x-2 ml-7 text-sm text-slate-900"
+                            >
+                              <span className="text-[hsl(var(--brand-primary))] font-semibold">{index + 1}.</span>
+                              <span>{speaker.name}</span>
+                              <span className="text-slate-500">({speaker.count})</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center">
+                          <FileText className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
+                          <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
+                        </div>
+                        <div className="flex items-center">
+                          <MapPin className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Headquarters:</span>
+                          <span className="ml-auto text-sm font-bold text-slate-900">
+                            {bankData ? bankData.cb_location : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <Coins className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Currency:</span>
+                          <span className="ml-auto text-sm font-bold text-slate-900">
+                            {bankData ? bankData.currency : 'N/A'}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <div>
+                      <h3 className="font-semibold text-lg text-slate-800 mb-4" id="top-topics">Top 10 Topics</h3>
+                      <ul className="space-y-3">
+                        {bankData?.top_topics?.slice(0, 10).map(([topic, percentage], index) => (
+                          <li key={topic} className="flex flex-col">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium text-slate-700 capitalize">
+                                {index + 1}. {topic}
+                              </span>
+                              <span className="text-sm font-semibold text-slate-900">
+                                {(percentage * 100).toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-100 h-2 rounded-full">
+                              <div 
+                                className="bg-[hsl(var(--brand-primary))] h-2 rounded-full transition-all duration-300 ease-in-out"
+                                style={{ width: `${percentage * 100}%` }}
+                              />
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4" id="top-topics">Top 10 Topics</h3>
-                    <ul className="space-y-3">
-                      {bankData?.top_topics?.slice(0, 10).map(([topic, percentage], index) => (
-                        <li key={topic} className="flex flex-col">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-slate-700 capitalize">
-                              {index + 1}. {topic}
-                            </span>
-                            <span className="text-sm font-semibold text-slate-900">
-                              {(percentage * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-slate-100 h-2 rounded-full">
-                            <div 
-                              className="bg-[hsl(var(--brand-primary))] h-2 rounded-full transition-all duration-300 ease-in-out"
-                              style={{ width: `${percentage * 100}%` }}
-                            />
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              </div>
             </Card>
 
             <Card className="shadow-lg" id="communication-frequency">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                  Communication Frequency Over Time
-                </CardTitle>
-                <CardDescription>Number of speeches per year</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    frequency: {
-                      label: "Number of Speeches",
-                      color: "hsl(var(--chart-1))",
-                    },
-                  }}
-                  className="h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={communicationData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis 
-                        dataKey="year" 
-                        stroke="#6b7280"
-                        tickFormatter={(value) => value}
-                      />
-                      <YAxis stroke="#6b7280" />
-                      <Tooltip 
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            return (
-                              <div className="bg-white p-2 border border-gray-300 rounded shadow">
-                                <p className="text-sm">{`Year: ${payload[0].payload.year}`}</p>
-                                <p className="text-sm font-bold">{`Number of Speeches: ${payload[0].value}`}</p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="speeches"
-                        stroke="hsl(var(--brand-primary))"
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
+              <div className="relative">
+                <InfoTooltip 
+                  content="The graphs show the number of speeches of the central bank in the BIS speeches database."
+                />
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <TrendingUp className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
+                    Communication Frequency Over Time
+                  </CardTitle>
+                  <CardDescription>Number of speeches per year</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer
+                    config={{
+                      frequency: {
+                        label: "Number of Speeches",
+                        color: "hsl(var(--chart-1))",
+                      },
+                    }}
+                    className="h-[300px]"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={communicationData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis 
+                          dataKey="year" 
+                          stroke="#6b7280"
+                          tickFormatter={(value) => value}
+                        />
+                        <YAxis stroke="#6b7280" />
+                        <Tooltip 
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                                  <p className="text-sm">{`Year: ${payload[0].payload.year}`}</p>
+                                  <p className="text-sm font-bold">{`Number of Speeches: ${payload[0].value}`}</p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="speeches"
+                          stroke="hsl(var(--brand-primary))"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </div>
             </Card>
 
             <div id="audience-distribution">
-              <AudienceDistributionCard audienceData={audienceData}/>
+              <AudienceDistributionCard 
+                audienceData={audienceData}
+                tooltipContent="Audiences labelled by Google Gemini based on the descriptions included in the BIS speeches database."
+              />
             </div>
 
             {bankData && (
-              <div id="policy-pressures" className="relative">
-                <div className="absolute top-4 right-4 group z-10">
-                  <Info className="h-5 w-5 text-[hsl(var(--brand-primary))] cursor-help" />
-                  <div className="hidden group-hover:block absolute right-0 w-80 p-2 bg-white border border-gray-200 rounded-lg shadow-lg text-sm">
-                    We define these based on responses of central banks to pressures. For more information on the index construction and examples see the paper Introducing Textual Measures of Central Bank Policy-Linkages Using ChatGPT in the Recent Papers tab.
-                  </div>
-                </div>
-                <PolicyPressuresChart bankData={bankData}/>
-                <div className="mt-2 text-sm text-gray-500 text-right">
-                  Source: <Link href="/research" className="text-[hsl(var(--brand-primary))] hover:underline">Research</Link>
-                </div>
+              <div id="policy-pressures">
+                <Card className="shadow-lg">
+                  <PolicyPressuresChart bankData={bankData} />
+                </Card>
               </div>
             )}
 
