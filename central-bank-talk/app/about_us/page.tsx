@@ -120,6 +120,33 @@ export default function AboutPage() {
           </p>
         </div>
       </section>
+
+      {/* Privacy Policy Section */}
+      <section id="privacy" className="bg-white py-16 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="relative mb-8">
+            <h2 className="text-xl font-medium text-gray-900">PRIVACY POLICY</h2>
+            <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-indigo-500"></div>
+          </div>
+          <div className="prose max-w-none text-gray-600">
+            <p className="mb-4">
+              This website does not collect, store, or process any personal data from its visitors.
+            </p>
+            <p className="mb-4">
+              The website is hosted on GitHub Pages, and as such, GitHub's privacy policies apply to the hosting infrastructure. 
+              For more information about GitHub's data collection and processing practices, please refer to the{' '}
+              <Link 
+                href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" 
+                className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub Privacy Statement
+              </Link>.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

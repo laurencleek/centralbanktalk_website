@@ -25,10 +25,10 @@ export default function ResearchPage() {
         { type: "PDF", label: "Presentation Slides", url: "/papers/cbi_llm/CBI_LLM_08_May.pdf" },
       ],
       mainFigure: {
-        title: "Distribution of central bank independence across time and countries",
+        title: "The effect of central bank independence on policy pressures",
         image: "/papers/cbi_llm/main_graph_cbi_llm.png"
       },
-      figureNote: "Data from 100 central banks (1997-2023)"
+      figureNote: "The event-study plots show the effect of changes central bank independence on monetary and financial policy pressures up to 12 years past the event."
     },
     {
       id: 2,
@@ -56,10 +56,10 @@ export default function ResearchPage() {
         { type: "ZIP", label: "Replication Files", url: "https://github.com/sbischl/cb-policy-LLM" },
       ],
       mainFigure: {
-        title: "Comparison of different LLM architectures for classification tasks",
+        title: "Policy linkeages over time",
         image: "/papers/pressures_measurement/main_graph_measurement.png"
       },
-      figureNote: "Analysis of 50,000 central bank speech paragraphs"
+      figureNote: "The graph shows the proportions of each of the five policy linkeages studies in the paper according to our ChatGPT-3.5 classification algorithm"
     }
   ]
 
@@ -68,7 +68,7 @@ export default function ResearchPage() {
       <PageHeader 
         tag="RESEARCH"
         title="Academic"
-        titleAccent="publications"
+        titleAccent="papers"
         description="Explore our research on central bank communication and policy frameworks."
       />
       <main className="container mx-auto px-4 py-12">

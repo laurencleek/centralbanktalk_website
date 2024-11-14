@@ -79,7 +79,7 @@ export default function RootLayout({
                 © 2024 Central Bank Talk.
                 </p>
                 <div className="flex space-x-4">
-                  <Link href="#" className="text-sm text-slate-700 hover:text-blue-900">Privacy Policy</Link>
+                  <Link href="/about_us#privacy" className="text-sm text-slate-700 hover:text-blue-900">Privacy Policy</Link>
                   <Link href="#" className="text-sm text-slate-700 hover:text-blue-900"></Link>
                 </div>
               </div>
