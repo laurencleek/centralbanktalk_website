@@ -34,9 +34,11 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-2xl font-medium mt-6 text-center text-gray-900">Lauren Leek</h3>
                 <p className="text-gray-600 leading-relaxed mt-4 text-center">
-                  PhD researcher in political science at the European University Institute. 
+                  Lauren is a PhD researcher in political science at the European University Institute. This website is based on her PhD research.
                   She was previously a visiting PhD researcher at the London School of Economics 
-                  and a PhD trainee at the European Central Bank in DG Economics.
+                  and a PhD trainee at the European Central Bank in DG Economics and is broadly interested in the intersection between social data science
+                  and political science/political economy.
+
                 </p>
                 <div className="flex items-center justify-center space-x-6 mt-auto pt-6">
                   <Link 
@@ -77,8 +79,9 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-2xl font-medium mt-6 text-center text-gray-900">Simeon Bischl</h3>
                 <p className="text-gray-600 leading-relaxed mt-4 text-center">
-                  PhD researcher in Economics at the European University Institute. 
-                  He was previously a research analyst at the European Central Bank in DG Econnomics.
+                  Simeon is a PhD researcher in Economics at the European University Institute. 
+                  He was previously a research analyst at the European Central Bank in DG Economics. 
+                  He is interested in topics at the intersection of public economics and political economy.
                 </p>
                 <div className="flex items-center justify-center space-x-6 mt-auto pt-6">
                   <Link 
