@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import Link from "next/link"
-import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText } from "lucide-react"
+import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText, List, BarChart2, PieChart as PieChartIcon, TrendingUp as TrendingUpIcon } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -296,6 +296,39 @@ export default function DataPage() {
         description="Explore detailed analytics and insights about central bank speeches."
       />
       <div className="section-container">
+        <div className="mb-8">
+          <div className="grid grid-cols-4 gap-4"> {/* Changed to 4 columns */}
+            <Link 
+              href="#key-facts" 
+              className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
+            >
+              <List className="h-6 w-6 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">Key Facts & Topics</span>
+            </Link>
+            <Link 
+              href="#communication-frequency" 
+              className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
+            >
+              <TrendingUpIcon className="h-6 w-6 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">Communication Frequency</span>
+            </Link>
+            <Link 
+              href="#audience-distribution" 
+              className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
+            >
+              <PieChartIcon className="h-6 w-6 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">Audience Distribution</span>
+            </Link>
+            <Link 
+              href="#policy-pressures" 
+              className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
+            >
+              <BarChart className="h-6 w-6 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">Policy Pressures</span>
+            </Link>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
             <div className="sticky top-24">
@@ -345,7 +378,7 @@ export default function DataPage() {
           </div>
 
           <div className="md:col-span-2 space-y-6">
-            <Card className="shadow-lg">
+            <Card className="shadow-lg" id="key-facts">
               <CardHeader>
                 <CardTitle className="text-2xl text-blue-900">
                   {selectedBank ? selectedBank.value : preselectedBank.value}
@@ -374,72 +407,70 @@ export default function DataPage() {
                         </span>
                       </div>
                       <div className="space-y-2">
-  <div className="flex items-center">
-    <User className="h-5 w-5 text-blue-600 mr-2" />
-    <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
-  </div>
-  {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
-    <div
-      key={speaker.name}
-      className="flex items-center space-x-2 ml-7 text-sm text-slate-900"
-    >
-      <span className="text-blue-600 font-semibold">{index + 1}.</span>
-      <span>{speaker.name}</span>
-      <span className="text-slate-500">({speaker.count})</span>
-    </div>
-  ))}
-</div>
-
+                        <div className="flex items-center">
+                          <User className="h-5 w-5 text-blue-600 mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Top 3 Speakers:</span>
+                        </div>
+                        {bankData && getTopSpeakers(bankData.speakers).map((speaker, index) => (
+                          <div
+                            key={speaker.name}
+                            className="flex items-center space-x-2 ml-7 text-sm text-slate-900"
+                          >
+                            <span className="text-blue-600 font-semibold">{index + 1}.</span>
+                            <span>{speaker.name}</span>
+                            <span className="text-slate-500">({speaker.count})</span>
+                          </div>
+                        ))}
+                      </div>
                       <div className="flex items-center">
                         <FileText className="h-5 w-5 text-blue-600 mr-2" />
                         <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
                         <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
                       </div>
                       <div className="flex items-center">
-  <MapPin className="h-5 w-5 text-blue-600 mr-2" />
-  <span className="text-sm font-medium text-slate-700">Headquarters:</span>
-  <span className="ml-auto text-sm font-bold text-slate-900">
-    {bankData ? bankData.cb_location : 'N/A'}
-  </span>
-</div>
-<div className="flex items-center">
-  <Coins className="h-5 w-5 text-blue-600 mr-2" />
-  <span className="text-sm font-medium text-slate-700">Currency:</span>
-  <span className="ml-auto text-sm font-bold text-slate-900">
-    {bankData ? bankData.currency : 'N/A'}
-  </span>
-</div>
-
+                        <MapPin className="h-5 w-5 text-blue-600 mr-2" />
+                        <span className="text-sm font-medium text-slate-700">Headquarters:</span>
+                        <span className="ml-auto text-sm font-bold text-slate-900">
+                          {bankData ? bankData.cb_location : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Coins className="h-5 w-5 text-blue-600 mr-2" />
+                        <span className="text-sm font-medium text-slate-700">Currency:</span>
+                        <span className="ml-auto text-sm font-bold text-slate-900">
+                          {bankData ? bankData.currency : 'N/A'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div>
-                  <h3 className="font-semibold text-lg text-slate-800 mb-4">Top 10 Topics</h3>
-                  <ul className="space-y-3">
-                    {bankData?.top_topics?.slice(0, 10).map(([topic, percentage], index) => (
-                      <li key={topic} className="flex flex-col">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-slate-700 capitalize">
-                            {index + 1}. {topic}
-                          </span>
-                          <span className="text-sm font-semibold text-slate-900">
-                            {(percentage * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-in-out"
-                            style={{ width: `${percentage * 100}%` }}
-                          />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                    <h3 className="font-semibold text-lg text-slate-800 mb-4" id="top-topics">Top 10 Topics</h3>
+                    <ul className="space-y-3">
+                      {bankData?.top_topics?.slice(0, 10).map(([topic, percentage], index) => (
+                        <li key={topic} className="flex flex-col">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-slate-700 capitalize">
+                              {index + 1}. {topic}
+                            </span>
+                            <span className="text-sm font-semibold text-slate-900">
+                              {(percentage * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-100 h-2 rounded-full">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-in-out"
+                              style={{ width: `${percentage * 100}%` }}
+                            />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg">
+            <Card className="shadow-lg" id="communication-frequency">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <TrendingUp className="mr-2 h-5 w-5 text-blue-600" />
@@ -493,10 +524,14 @@ export default function DataPage() {
               </CardContent>
             </Card>
 
-            <AudienceDistributionCard audienceData={audienceData}/>
+            <div id="audience-distribution">
+              <AudienceDistributionCard audienceData={audienceData}/>
+            </div>
 
             {bankData && (
-            <PolicyPressuresChart bankData={bankData} />
+              <div id="policy-pressures">
+                <PolicyPressuresChart bankData={bankData}/>
+              </div>
             )}
 
             {/* Sentiment Analysis card remains the same */}
