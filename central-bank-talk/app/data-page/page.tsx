@@ -10,7 +10,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import PolicyPressuresChart from '@/components/ui/policy-pressures-chart'
 import InteractiveCentralBankMap from '@/components/ui/interactive-map'
-
+import { SectionHeader } from "@/components/ui/section-header"
+import { DataCard } from "@/components/ui/data-card"
+import { PageHeader } from "@/components/ui/page-header"
 
 import { useData } from '@/contexts/DataContext'
 
@@ -286,18 +288,14 @@ export default function DataPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <main className="flex-1 container mx-auto p-4 md:p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center text-blue-900 hover:text-blue-700">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 mt-4 md:mt-0">Central Bank Data</h1>
-        </div>
-        
+    <div className="page-container">
+      <PageHeader 
+        tag="CENTRAL BANK DATA"
+        title="Analyze central bank"
+        titleAccent="communication"
+        description="Explore detailed analytics and insights about central bank speeches."
+      />
+      <div className="section-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
             <div className="sticky top-24">
@@ -505,7 +503,7 @@ export default function DataPage() {
             {/* ... */}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -1,10 +1,18 @@
+"use client"
+
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
+import { PageHeader } from "@/components/ui/page-header"
+import { useState } from 'react'
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { X } from 'lucide-react'
 
-export default function Papers() {
+export default function ResearchPage() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
   const papers = [
     {
       id: 1,
@@ -41,54 +49,26 @@ export default function Papers() {
   ]
 
   return (
-    <main className="flex-1 py-12 bg-gradient-to-b from-[#F8F9FF] to-white">
-      <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-            <h1 className="text-4xl font-light text-[#4052A8] bg-[#E6E9F4] px-8 py-2 rounded-full shadow-sm">Research Output</h1>
-            <p className="text-2xl text-[#1a365d] max-w-[900px] font-light leading-relaxed mt-8">
-              Work in progress, stay tuned
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-16">
-            <Input 
-              className="w-full border-gray-200" 
-              placeholder="Search papers" 
-              type="search" 
-            />
-            <Select>
-              <SelectTrigger className="w-full border-gray-200">
-                <SelectValue placeholder="Select author" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Authors</SelectItem>
-                <SelectItem value="leek">Lauren Leek</SelectItem>
-                <SelectItem value="bischl">Simeon Bischl</SelectItem>
-                <SelectItem value="freier">Maximilian Freier</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-12">
-            {papers.map((paper, index) => (
-              <div key={paper.id} className="flex flex-col md:flex-row gap-8 bg-white rounded-lg border p-6">
-                <div className="w-full md:w-2/5">
-                  <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
-                    <img
-                      alt="Paper thumbnail"
-                      className="object-cover w-full h-full"
-                      height={400}
-                      src={index === 0 ? "/papers/paper1.png" : 
-                           index === 1 ? "/papers/paper2.png" : 
-                           "/papers/paper3.png"}
-                      width={533}
-                    />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <PageHeader 
+        tag="RESEARCH"
+        title="Academic"
+        titleAccent="publications"
+        description="Explore our research on central bank communication and policy frameworks."
+      />
+      <main className="container mx-auto px-4 py-12">
+        <div className="space-y-12">
+          {papers.map((paper, index) => (
+            <div key={paper.id} className="flex flex-col md:flex-row gap-8 bg-white rounded-lg border p-6 hover:shadow-lg transition-shadow">
+              <div className="flex-1">
+                <div className="sticky top-6">
+                  <div className="text-sm font-medium text-[#1a365d] mb-2 bg-amber-100/80 text-[#1a365d] px-2 py-1 rounded inline-block">
+                    {paper.category}
                   </div>
-                </div>
-                <div className="flex-1 md:pl-6">
-                  <div className="text-sm font-medium text-[#1a365d] mb-2 bg-[#1a365d] text-white px-2 py-1 rounded inline-block">{paper.category}</div>
                   <h2 className="text-xl font-semibold text-[#1a365d] mb-2">{paper.title}</h2>
-                  <p className="text-gray-600 mb-2 font-light text-[#1a365d]">{paper.authors.join(", ").replace("Freier, Maximilian", "Maximilian Freier")}</p>
+                  <p className="text-gray-600 mb-2 font-light text-[#1a365d]">
+                    {paper.authors.join(", ").replace("Freier, Maximilian", "Maximilian Freier")}
+                  </p>
                   <p className="text-sm text-gray-500 mb-4 font-light text-[#1a365d]">{paper.date}</p>
                   <p className="text-sm text-gray-700 mb-4 font-light text-[#1a365d]">{paper.abstract}</p>
                   <div className="space-y-2">
@@ -107,9 +87,64 @@ export default function Papers() {
                   </div>
                 </div>
               </div>
-            ))}
+              <div className="w-full md:w-2/5">
+                <div className="space-y-4">
+                  <div className="rounded-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300">
+                    <div className="p-4 bg-slate-50 border-b border-slate-200">
+                      <p className="font-medium text-sm text-[#1a365d] mb-1">Main Figure</p>
+                      <p className="text-sm text-slate-600">
+                        {index === 0 ? "Distribution of central bank independence across time and countries" :
+                         index === 1 ? "Network visualization of ECB and NCB communication patterns" :
+                         "Comparison of different LLM architectures for classification tasks"}
+                      </p>
+                    </div>
+                    <div 
+                      className="group cursor-pointer transition-all duration-300"
+                      onClick={() => setSelectedImage(index === 0 ? "/papers/paper1.png" : 
+                                                     index === 1 ? "/papers/paper2.png" : 
+                                                     "/papers/paper3.png")}
+                    >
+                      <img
+                        alt="Paper thumbnail"
+                        className="w-full h-auto transform transition-all duration-300 group-hover:scale-[1.02] group-hover:brightness-105"
+                        src={index === 0 ? "/papers/paper1.png" : 
+                             index === 1 ? "/papers/paper2.png" : 
+                             "/papers/paper3.png"}
+                      />
+                    </div>
+                    <div className="p-4 bg-slate-50 border-t border-slate-200">
+                      <p className="text-xs text-slate-500 italic">
+                        Note: {index === 0 ? "Data from 100 central banks (1997-2023)" :
+                              index === 1 ? "Based on 15,000 speeches from ECB and NCBs" :
+                              "Analysis of 50,000 central bank speech paragraphs"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="w-auto h-auto max-w-[min(95vw,1200px)] max-h-[90vh] p-0 overflow-hidden">
+          <button
+            onClick={() => setSelectedImage(null)}
+            className="absolute right-3 top-3 z-50 rounded-full bg-white/80 p-2 backdrop-blur-sm transition-colors hover:bg-white"
+          >
+            <X className="h-4 w-4 text-gray-700" />
+            <span className="sr-only">Close</span>
+          </button>
+          <div className="w-full h-full flex items-center justify-center bg-white p-6">
+            <img
+              src={selectedImage || ''}
+              alt="Enlarged figure"
+              className="max-w-full max-h-[80vh] object-contain"
+            />
           </div>
-      </div>
-    </main>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

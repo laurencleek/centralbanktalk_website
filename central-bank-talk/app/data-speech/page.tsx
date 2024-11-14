@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { PageHeader } from "@/components/ui/page-header"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { SectionHeader } from "@/components/ui/section-header"
 
 interface Speech {
   url: string
@@ -303,242 +305,234 @@ export default function DataPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-start mb-6">
-        <Button variant="ghost" className="text-primary hover:text-primary/80" asChild>
-          <a href="/" className="flex items-center gap-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Home
-          </a>
-        </Button>
-      </div>
-      <div className="text-center mb-10">
-        <h1 className="inline-block text-4xl font-bold bg-blue-50 dark:bg-blue-900/20 px-6 py-2 rounded-full mb-4">
-          Explore Speeches
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Search through our speeches database by date, bank and keywords.
-        </p>
-      </div>
-      <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 flex-1">
-            <Input
-              placeholder="Search speeches..."
-              onChange={(event) => debouncedSearch(event.target.value)}
-              className="max-w-sm"
-            />
-            <Select value={yearFilter} onValueChange={setYearFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All years</SelectItem>
-                {years.map(year => (
-                  <SelectItem key={year} value={year}>{year}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={bankFilter} onValueChange={setBankFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select bank" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All banks</SelectItem>
-                {banks.map(bank => (
-                  <SelectItem key={bank} value={bank}>{bank}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="rounded-md border overflow-hidden">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <PageHeader 
+        tag="EXPLORE SPEECHES"
+        title="Search through our"
+        titleAccent="speeches database"
+        description="Explore central bank communications by date, bank and keywords."
+      />
+      <div className="container mx-auto max-w-6xl px-4 pb-12">
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 flex-1">
+              <Input
+                placeholder="Search speeches..."
+                onChange={(event) => debouncedSearch(event.target.value)}
+                className="max-w-sm"
+              />
+              <Select value={yearFilter} onValueChange={setYearFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All years</SelectItem>
+                  {years.map(year => (
+                    <SelectItem key={year} value={year}>{year}</SelectItem>
                   ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => setSelectedSpeech(row.original)}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="p-2">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
+                </SelectContent>
+              </Select>
+              <Select value={bankFilter} onValueChange={setBankFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select bank" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All banks</SelectItem>
+                  {banks.map(bank => (
+                    <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    )
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {table.getRowModel().rows.length} of {speeches?.length} speeches
-          </p>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <Dialog open={!!selectedSpeech} onOpenChange={() => {
-        setSelectedSpeech(null)
-        setSpeechContent(null)
-      }}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <div className="space-y-4">
-            <DialogHeader>
-              <DialogTitle>{selectedSpeech?.title}</DialogTitle>
-            </DialogHeader>
-
-            <div className="grid gap-2 text-sm">
-              <p><span className="font-medium">Date:</span> {selectedSpeech?.date && formatDate(selectedSpeech.date)}</p>
-              <p><span className="font-medium">Speaker:</span> {selectedSpeech?.speaker}</p>
-              <p><span className="font-medium">Position:</span> {selectedSpeech?.position}</p>
-              <p><span className="font-medium">Central Bank:</span> {centralBanks?.[selectedSpeech?.central_bank || ""] || selectedSpeech?.central_bank}</p>
-              <p><span className="font-medium">Audience:</span> {selectedSpeech?.audience}</p>
-              {selectedSpeech?.location && (
-                <p><span className="font-medium">Location:</span> {selectedSpeech.location}</p>
-              )}
-              <p><span className="font-medium">Description:</span> {selectedSpeech?.description}</p>
-            </div>
-
-            {speechContent?.topics && (
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Topics</h3>
-                <div className="flex flex-wrap gap-2">
-                  {speechContent.topics.map((topic, index) => (
-                    <span key={index} className="px-2 py-1 bg-primary text-primary-foreground rounded-full text-sm">
-                      {topic}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="sticky top-0 bg-background z-10">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Speech Content</h3>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={showClassifications}
-                    onCheckedChange={setShowClassifications}
-                    id="show-classifications"
-                  />
-                  <Label htmlFor="show-classifications">Show Classifications</Label>
-                </div>
-              </div>
-              {showClassifications && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-4">
-                  {["none", "financial dominance", "fiscal dominance", "monetary dominance", "monetary-fiscal coordination", "monetary-financial coordination"].map((classification) => (
-                    <div key={classification} className={`px-2 py-1 ${getClassificationColor(classification)} rounded text-sm text-center`}>
-                      {classification}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4">
-              {speechContent ? (
-                <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {speechContent.sentences.map((sentence, index) => (
-                    <span
-                      key={index}
-                      className={showClassifications ? getClassificationColor(speechContent.classifications[index]) : ""}
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => setSelectedSpeech(row.original)}
                     >
-                      {sentence}{' '}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Loading speech content...</p>
-              )}
-            </div>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="p-2">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-            <div className="pt-4">
-              <Button asChild>
-                <a href={`https://www.bis.org/review/${selectedSpeech?.url}`}  target="_blank" rel="noopener noreferrer">
-                  View PDF on BIS Website
-                </a>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {table.getRowModel().rows.length} of {speeches?.length} speeches
+            </p>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+
+        <Dialog open={!!selectedSpeech} onOpenChange={() => {
+          setSelectedSpeech(null)
+          setSpeechContent(null)
+        }}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <div className="space-y-4">
+              <DialogHeader>
+                <DialogTitle>{selectedSpeech?.title}</DialogTitle>
+              </DialogHeader>
+
+              <div className="grid gap-2 text-sm">
+                <p><span className="font-medium">Date:</span> {selectedSpeech?.date && formatDate(selectedSpeech.date)}</p>
+                <p><span className="font-medium">Speaker:</span> {selectedSpeech?.speaker}</p>
+                <p><span className="font-medium">Position:</span> {selectedSpeech?.position}</p>
+                <p><span className="font-medium">Central Bank:</span> {centralBanks?.[selectedSpeech?.central_bank || ""] || selectedSpeech?.central_bank}</p>
+                <p><span className="font-medium">Audience:</span> {selectedSpeech?.audience}</p>
+                {selectedSpeech?.location && (
+                  <p><span className="font-medium">Location:</span> {selectedSpeech.location}</p>
+                )}
+                <p><span className="font-medium">Description:</span> {selectedSpeech?.description}</p>
+              </div>
+
+              {speechContent?.topics && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Topics</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {speechContent.topics.map((topic, index) => (
+                      <span key={index} className="px-2 py-1 bg-primary text-primary-foreground rounded-full text-sm">
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="sticky top-0 bg-background z-10">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Speech Content</h3>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={showClassifications}
+                      onCheckedChange={setShowClassifications}
+                      id="show-classifications"
+                    />
+                    <Label htmlFor="show-classifications">Show Classifications</Label>
+                  </div>
+                </div>
+                {showClassifications && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-4">
+                    {["none", "financial dominance", "fiscal dominance", "monetary dominance", "monetary-fiscal coordination", "monetary-financial coordination"].map((classification) => (
+                      <div key={classification} className={`px-2 py-1 ${getClassificationColor(classification)} rounded text-sm text-center`}>
+                        {classification}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4">
+                {speechContent ? (
+                  <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {speechContent.sentences.map((sentence, index) => (
+                      <span
+                        key={index}
+                        className={showClassifications ? getClassificationColor(speechContent.classifications[index]) : ""}
+                      >
+                        {sentence}{' '}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Loading speech content...</p>
+                )}
+              </div>
+
+              <div className="pt-4">
+                <Button asChild>
+                  <a href={`https://www.bis.org/review/${selectedSpeech?.url}`}  target="_blank" rel="noopener noreferrer">
+                    View PDF on BIS Website
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }
