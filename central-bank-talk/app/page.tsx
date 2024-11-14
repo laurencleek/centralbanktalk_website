@@ -111,6 +111,9 @@ export default function Page() {
               <h2 className="max-w-[800px] text-3xl font-bold tracking-tighter text-blue-950 sm:text-4xl">
                 Central banks are increasingly responding in their communication to various political and market pressures
               </h2>
+              <p className="max-w-[800px] text-sm text-slate-600 mt-4">
+                Central bank communication has gone from being something 'not done' to a core tool of central banks over the past three decades. Lauren's PhD project aims to discover systematic patterns to give insights into this major transformation. She does this in several ways including through joint papers Simeon and Maximilian. First, we (Lauren, Simeon and Maximilian) propose a novel LLM based method to measure responses of central banks to various pressures in their monetary communication. Second, we (Lauren and Simeon) examine how central bank independence shapes these responses. Third, Lauren examines how institutional aspects, in this case the Eurosystem multi-level set-up, influences agenda-setting and responsiveness in the communication of central banks. This website allows insights into the data used for all these projects.
+              </p>
               <div className="mt-8 w-full max-w-4xl">
                 <img
                   src="/images/placeholder_map.png"
