@@ -74,7 +74,11 @@ export default function ResearchPage() {
       <main className="container mx-auto px-4 py-12">
         <div className="space-y-12">
           {papers.map((paper, index) => (
-            <div key={paper.id} className="flex flex-col md:flex-row gap-8 bg-white rounded-lg border p-6 hover:shadow-lg transition-shadow">
+            <div 
+              key={paper.id} 
+              id={paper.id === 1 ? 'cbi-llm' : paper.id === 2 ? 'agenda-setting' : 'textual-measures'}
+              className="flex flex-col md:flex-row gap-8 bg-white rounded-lg border p-6 hover:shadow-lg transition-shadow"
+            >
               <div className="flex-1">
                 <div className="sticky top-6">
                   <div className="text-sm font-medium text-[#1a365d] mb-2 bg-amber-100/80 text-[#1a365d] px-2 py-1 rounded inline-block">

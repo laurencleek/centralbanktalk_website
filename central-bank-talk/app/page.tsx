@@ -18,7 +18,7 @@ export default function Page() {
         <section className="container mx-auto px-4 py-8">
           <div className="grid gap-6 md:grid-cols-5 lg:grid-cols-5">
             {/* Main Large Tile */}
-            <div className="relative col-span-3 overflow-hidden rounded-lg shadow-lg">
+            <Link href="/research#cbi-llm" className="relative col-span-3 overflow-hidden rounded-lg shadow-lg group">
               <div className="absolute inset-0">
                 <img
                   src="images/website_mainpaper.avif"
@@ -28,21 +28,21 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-950/90 to-blue-900/70" />
               </div>
               <div className="relative p-8 md:p-12">
-                <h2 className="mb-4 text-3xl font-bold text-amber-100 md:text-4xl">CB Speeches Insights</h2>
+                <h2 className="mb-4 text-3xl font-bold text-amber-100 md:text-4xl">CBI and Communication</h2>
                 <p className="mb-6 max-w-[90%] text-lg text-amber-50">
-                  Access our comprehensive collection of central bank pressures measured through communications.
+                  Access our comprehensive analysis of how central bank independence shapes monetary policy communication.
                 </p>
-                <Button variant="secondary" size="lg" className="bg-amber-100 text-blue-950 hover:bg-amber-200">
+                <span className="inline-block bg-amber-100 text-blue-950 hover:bg-amber-200 px-6 py-3 rounded-md font-medium">
                   Explore the Paper
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                  <ArrowRight className="ml-2 h-4 w-4 inline" />
+                </span>
               </div>
-            </div>
+            </Link>
 
             {/* Right Column Tiles */}
             <div className="col-span-2 grid gap-6">
               {/* Top Tile */}
-              <div className="relative overflow-hidden rounded-lg shadow-lg">
+              <Link href="/research#agenda-setting" className="relative overflow-hidden rounded-lg shadow-lg group">
                 <div className="absolute inset-0">
                   <img
                     src="images/webstite_eurosystem.jpg"
@@ -56,15 +56,15 @@ export default function Page() {
                   <p className="mb-4 text-sm text-amber-50">
                     Explore the interconnected network of the ECB and national central banks and their communication patterns.
                   </p>
-                  <Button variant="secondary" size="sm" className="bg-amber-100 text-blue-950 hover:bg-amber-200">
+                  <span className="inline-block bg-amber-100 text-blue-950 hover:bg-amber-200 px-4 py-2 rounded-md text-sm font-medium">
                     Explore
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                    <ArrowRight className="ml-2 h-4 w-4 inline" />
+                  </span>
                 </div>
-              </div>
+              </Link>
 
               {/* Bottom Tile */}
-              <div className="relative overflow-hidden rounded-lg shadow-lg">
+              <Link href="/research#textual-measures" className="relative overflow-hidden rounded-lg shadow-lg group">
                 <div className="absolute inset-0">
                   <img
                     src="images/website_machinelearning.jpg"
@@ -78,12 +78,12 @@ export default function Page() {
                   <p className="mb-4 text-sm text-amber-50">
                     Discover insights through our optimizing LLMs for classification of central bank speak.
                   </p>
-                  <Button variant="secondary" size="sm" className="bg-amber-100 text-blue-950 hover:bg-amber-200">
+                  <span className="inline-block bg-amber-100 text-blue-950 hover:bg-amber-200 px-4 py-2 rounded-md text-sm font-medium">
                     Explore
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                    <ArrowRight className="ml-2 h-4 w-4 inline" />
+                  </span>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </section>
