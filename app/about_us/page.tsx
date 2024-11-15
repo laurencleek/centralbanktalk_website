@@ -13,7 +13,7 @@ export default function AboutPage() {
       />
 
       {/* Project Description Section */}
-      <section className="bg-white text-gray-800 py-8 sm:py-12 px-4">
+      <section className="bg-white text-gray-800 py-6 sm:py-8 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="relative mb-8">
             <h2 className="text-xl font-medium text-gray-900">ABOUT THE PROJECT</h2>
@@ -23,15 +23,15 @@ export default function AboutPage() {
             <strong className="text-gray-900">
               Central bank communication has gone from being something 'not done' to a core tool of central banks over the past three decades.
             </strong>
-            This website is based and uses various data from Lauren's PhD project which aims to discover systematic patterns to give insights into this major transformation. She does this in several ways including through joint papers Simeon and Maximilian. First, we (Lauren, Simeon and Maximilian) propose a novel LLM based method to measure responses of central banks to various pressures in their monetary communication. Second, we (Lauren and Simeon) examine how central bank independence shapes these responses. Third, Lauren examines how institutional aspects, in this case the Eurosystem multi-level set-up, influences agenda-setting and responsiveness in the communication of central banks. This website allows insights into the data used for all these projects. This is still ongoing work and updates will be added.
+             This website is based on and uses data from Lauren's PhD project which aims to discover systematic insights into this major transformation. She does this in several (joint) papers. First, Lauren, Simeon and Maximilian, propose a novel LLM based method to measure responses of central banks to various pressures in their monetary communication. Second, Lauren and Simeon examine how central bank independence shapes monetary policy. Third, Lauren examines how institutional aspects, in this case the Eurosystem multi-level set-up, influences agenda-setting and responsiveness in central bank communication. This is still ongoing work and updates will be added.
           </p>
         </div>
       </section>
 
       {/* Team Section */}
-      <section className="bg-white text-gray-800 py-12 sm:py-20 px-4">
+      <section className="bg-white text-gray-800 py-6 sm:py-12 px-4">
         <div className="container mx-auto max-w-5xl">
-          <div className="relative mb-16">
+          <div className="relative mb-8">
             <h2 className="text-xl font-medium text-gray-900">OUR PROJECT TEAM</h2>
             <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-indigo-500"></div>
           </div>
