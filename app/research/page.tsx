@@ -19,10 +19,11 @@ export default function ResearchPage() {
       category: "Paper",
       title: "How Central Bank Independence Shapes Monetary Policy Communication: A Large Language Model Application",
       authors: ["Lauren Leek", "Simeon Bischl"],
-      date: "JULY 2024",
-      abstract: "Although central bank communication is a core monetary policy and accountability tool for central banks, little is known about what shapes it. This paper develops and tests a theory regarding a previously unconsidered variable: central bank independence (CBI). We argue that increases in CBI alter the pressures a central bank faces and amends the reputation costs of not addressing these. We fine-tune and validate a Large Language Model (Google's Gemini) to develop novel monetary policy indices in speeches of 100 central banks from 1997 to 2023. Employing a staggered difference-in-differences and an instrumental variable approach, we find robust evidence that an increase in independence decreases communication portraying central banks to be in full control of their monetary policy conduct and increases communication reflecting financial pressures. These results are not, as generally is assumed, confounded by general changes in communication over time or singular events, in particular, the financial crisis.",
+      date: "PREPRINT NOVEMBER 2024",
+      abstract: "Although central bank communication is a core monetary policy and accountability tool for central banks, little is known about what shapes it. This paper develops and tests a theory regarding a previously unconsidered variable: central bank independence (CBI). We argue that increases in CBI alter the pressures a central bank faces, compelling them to address these pressures to maintain their reputation. We fine-tune and validate a Large Language Model (Google's Gemini) to develop novel textual indices of policy pressures regarding monetary policy communication of central banks in speeches of 100 central banks from 1997 to 2023. Employing a staggered difference-in-differences and an instrumental variable approach, we find robust evidence that an increase in independence decreases monetary pressures and increases financial pressures discussed in monetary policy communication. These results are not, as generally is assumed, confounded by general changes in communication over time or singular events, in particular, the Global Financial Crisis.",
       downloads: [
-        { type: "PDF", label: "Presentation Slides", url: "/papers/cbi_llm/CBI_LLM_08_May.pdf" },
+        { type: "PDF", label: "Full Paper", url: "https://osf.io/preprints/socarxiv/yrhka" },
+        { type: "PDF", label: "Presentation Slides", url: "/papers/cbi_llm/CBI_LLM_presentation.pdf" },
       ],
       mainFigure: {
         title: "The effect of central bank independence on policy pressures",
@@ -85,6 +86,18 @@ export default function ResearchPage() {
                     {paper.category}
                   </div>
                   <h2 className="text-lg sm:text-xl font-semibold text-[#1a365d]">{paper.title}</h2>
+                  <div className="text-sm">
+                    {paper.authors.map((author, index) => (
+                      <span key={index}>
+                        <span className="font-medium text-[#4052A8] hover:text-[#1a365d] transition-colors">
+                          {author}
+                        </span>
+                        {index < paper.authors.length - 1 && (
+                          <span className="text-gray-400 mx-1">•</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
                   <p className="text-sm sm:text-base text-gray-600">{paper.abstract}</p>
                   <div className="flex flex-wrap gap-2">
                     {paper.downloads.map((download, index) => (

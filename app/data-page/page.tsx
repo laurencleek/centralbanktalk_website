@@ -342,7 +342,7 @@ export default function DataPage() {
 
   const AUDIENCE_DESCRIPTIONS = {
     "academic": "Speeches delivered at universities, research institutions, and academic conferences",
-    "central bank": "Communications aimed at other central banks and monetary policy institutions",
+    "central bank": "Communication aimed at a general central banking audience like press conferences",
     "financial market": "Addresses to financial sector participants, banks, and market analysts",
     "political": "Speeches to government bodies, parliaments, and policy makers"
   }
@@ -503,14 +503,6 @@ export default function DataPage() {
                               <span className="text-slate-500">({speaker.count})</span>
                             </div>
                           ))}
-                        </div>
-
-                        <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
-                        
-                        <div className="flex items-center">
-                          <FileText className="h-5 w-5 text-[hsl(var(--brand-primary))] mr-2" />
-                          <span className="text-sm font-medium text-slate-700">Avg. Speech Length:</span>
-                          <span className="ml-auto text-sm font-bold text-slate-900">2,500 words</span>
                         </div>
 
                         <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
