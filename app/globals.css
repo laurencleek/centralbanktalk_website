@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -142,7 +138,7 @@ body {
     transform: translateX(-50%);
   }
 
-  .nav-link:hover::after {
+  .nav-link:hover::after {  
     width: 80%;
   }
 }
