@@ -7,6 +7,7 @@ import { useData } from '@/contexts/DataContext'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Label } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 import { useState, useEffect } from 'react'
+import DynamicWordCloud from './components/dynamic-word-cloud';
 
 export default function Page() {
   const { data, isLoading, error } = useData("data/central_banks/central_banks.json");
@@ -75,7 +76,6 @@ export default function Page() {
                 </span>
               </div>
             </Link>
-
             {/* Right Column Tiles */}
             <div className="col-span-1 md:col-span-2 grid gap-4 sm:gap-6">
               {/* Top Tile */}
@@ -99,7 +99,6 @@ export default function Page() {
                   </span>
                 </div>
               </Link>
-
               {/* Bottom Tile */}
               <Link href="/research#textual-measures" className="relative overflow-hidden rounded-lg shadow-lg group">
                 <div className="absolute inset-0">
@@ -124,7 +123,6 @@ export default function Page() {
             </div>
           </div>
         </section>
-
         {/* Hero Section - Reduced top padding */}
         <section className="container mx-auto px-4 py-4 sm:py-8">
           <div className="flex flex-col items-center text-center">
@@ -137,7 +135,6 @@ export default function Page() {
             </p>
           </div>
         </section>
-
         {/* Key Data Point */}
         <section className="border-t border-slate-200 bg-white">
           <div className="container mx-auto px-4 py-12 sm:py-24">
@@ -170,12 +167,12 @@ export default function Page() {
                   className="h-[300px] sm:h-[400px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart 
+                    <LineChart
                       data={chartData}
                       margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                      <XAxis 
+                      <XAxis
                         dataKey="year" 
                         className="text-xs text-muted-foreground" 
                         tickMargin={10}
@@ -220,7 +217,6 @@ export default function Page() {
                           return null
                         }}
                       />
-
                       <Legend 
                         verticalAlign="bottom"
                         height={36}
@@ -245,7 +241,6 @@ export default function Page() {
                           return null
                         }}
                       />
-                      
                       {lastPoint && (
                         <>
                           <text
@@ -280,7 +275,6 @@ export default function Page() {
                           </text>
                         </>
                       )}
-
                       <Line
                         type="monotone"
                         dataKey="monetary"
@@ -310,6 +304,27 @@ export default function Page() {
                 </ChartContainer>
                 <div className="mt-8 sm:mt-12 space-y-4 sm:space-y-8">
                   {/* Data source explanation with visual separation */}
+                  
+                  {/* Key Insight about topic changes - above the word cloud */}
+                  <div className="flex flex-col items-center gap-4 text-center my-12">
+                    <div className="rounded-full bg-amber-100 px-4 py-1.5 text-sm font-medium text-blue-900">
+                      Key Insight
+                    </div>
+                    <h3 className="max-w-[800px] text-3xl font-bold tracking-tighter text-blue-950 sm:text-4xl">
+                      Topics addressed by central banks have evolved significantly over time
+                    </h3>
+                    <p className="max-w-[800px] text-base text-slate-700 mt-4 leading-relaxed">
+                      Our analysis of topic distribution shows a clear evolution in what central bankers talk about. While central banks were once focused narrowly on monetary policy, recent years have seen a shift towards addressing fiscal and financial stability issues as well as new topics like climate change and digital currencies.
+                    </p>
+                  </div>
+
+                  {/* Topic Evolution Word Cloud - without box styling, directly embedded */}
+                  <DynamicWordCloud 
+                    width={800}
+                    height={450}
+                    className="mx-auto w-full"
+                  />
+
                   <div className="relative py-4 sm:py-6 px-4 sm:px-8 bg-slate-50 rounded-lg border border-slate-100">
                     <div className="flex flex-col gap-4">
                       <h3 className="text-lg font-semibold text-blue-950">Data Source</h3>
@@ -318,7 +333,7 @@ export default function Page() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Coverage visualization with subtle styling */}
                   <div className="bg-white rounded-lg border border-slate-100 p-4 sm:p-8">
                     <div className="space-y-6">
@@ -346,15 +361,13 @@ export default function Page() {
                       />
                     </div>
                   </div>
+                  
                 </div>
               </div>
             </div>
           </div>
         </section>
       </main>
-
-      <div>
-    </div>
     </div>
   )
 }
