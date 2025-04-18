@@ -8,6 +8,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { ChartContainer } from "@/components/ui/chart"
 import { useState, useEffect } from 'react'
 import DynamicWordCloud from './components/dynamic-word-cloud';
+import InteractiveWorldMap from './components/InteractiveWorldMap';
 
 export default function Page() {
   const { data, isLoading, error } = useData("data/central_banks/central_banks.json");
@@ -366,6 +367,11 @@ export default function Page() {
               </div>
             </div>
           </div>
+        </section>
+              {/* Interactive World Map Section */}
+        <section className="container mx-auto px-4 py-8">
+          <h2 className="text-2xl font-bold mb-4 text-blue-950 dark:text-blue-100">World Map Overview</h2>
+          <InteractiveWorldMap />
         </section>
       </main>
     </div>
