@@ -6,6 +6,7 @@ import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users,
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { useSearchParams, useRouter } from "next/navigation";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsDonutChart, Pie, Cell, Label, Sector } from "recharts"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import PolicyPressuresChart from '@/components/ui/policy-pressures-chart'
@@ -16,26 +17,53 @@ import { PageHeader } from "@/components/ui/page-header"
 import { InfoTooltip } from "@/components/ui/info-tooltip"
 
 import { useData } from '@/contexts/DataContext'
+import { useMemo } from 'react';
+
+// Utility to invert an object mapping
+function invertMapping(obj: Record<string, string>): Record<string, string> {
+  const inverted: Record<string, string> = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      inverted[obj[key]] = key;
+    }
+  }
+  return inverted;
+}
 
 export default function DataPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [filteredBanks, setFilteredBanks] = useState([])
-  const [selectedBank, setSelectedBank] = useState(null)
-  const [highlightedIndex, setHighlightedIndex] = useState(-1)
-  const [bankData, setBankData] = useState(null)
-  const preselectedBank = { key: "european_central_bank", value: "European Central Bank" }
-  const dropdownRef = useRef(null)
-  const [activeSection, setActiveSection] = useState("")
+  // Load country mapping at the top level (hook)
+  const { data: countryNameToIso3 } = useData<Record<string, string>>("/data/country_name_to_iso3.json");
+  const isoToCountry = useMemo(
+    () => countryNameToIso3 ? invertMapping(countryNameToIso3) : {},
+    [countryNameToIso3]
+  );
 
-  const { data: centralBanks, isLoading, error } = useData("/data/central_banks/central_banks.json")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredBanks, setFilteredBanks] = useState([]);
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [bankData, setBankData] = useState(null);
+  const searchParams = useSearchParams();
+  const centralBankKey = searchParams.get("central_bank");
+  const router = useRouter();
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+  const [activeSection, setActiveSection] = useState("");
+
+  const { data: centralBanks, isLoading, error } = useData("/data/central_banks/central_banks.json");
 
   useEffect(() => {
-    if (!selectedBank) {
-      setSearchTerm(preselectedBank.value)
-      loadBankData(preselectedBank)
+    // Always use the URL param if present, otherwise default to ECB
+    const bankKey = centralBankKey || "european_central_bank";
+    if (centralBanks && bankKey) {
+      const bankNameRaw = centralBanks[bankKey] || bankKey.replace(/_/g, " ");
+      // Capitalize display name (first letter of each word)
+      const bankName = bankNameRaw.replace(/\b\w/g, l => l.toUpperCase());
+      setSelectedBank({ key: bankKey, value: bankName });
+      loadBankData({ key: bankKey, value: bankName });
     }
-  }, [])
+  }, [centralBankKey, centralBanks]);
 
   const getAudienceData = () => {
     if (!bankData?.audiences) {
@@ -98,10 +126,12 @@ export default function DataPage() {
   }, [searchTerm, centralBanks, showDropdown])
 
   const handleBankSelect = async (bank) => {
-    setSelectedBank(bank)
-    setSearchTerm(bank.value)
-    setShowDropdown(false)
-    await loadBankData(bank)
+    setSelectedBank(bank);
+    setSearchTerm(""); // Clear search box after selection
+    setShowDropdown(false);
+    await loadBankData(bank);
+    // Update the URL with the selected bank key (shallow routing)
+    router.push(`?central_bank=${encodeURIComponent(bank.key)}`, { scroll: false }, { shallow: true });
   }
 
   const handleSearchFocus = () => {
@@ -417,7 +447,10 @@ export default function DataPage() {
                         }}
                         onFocus={handleSearchFocus}
                         onKeyDown={handleKeyDown}
-                        className={`w-full ${!selectedBank && !showDropdown ? 'text-gray-400' : ''}`}
+                        className="w-full"
+                        autoComplete="off"
+                        spellCheck={false}
+                        ref={inputRef}
                       />
                       {showDropdown && filteredBanks.length > 0 && (
                         <div 
@@ -457,10 +490,12 @@ export default function DataPage() {
                 />
                 <CardHeader>
                   <CardTitle className="text-2xl text-blue-900">
-                    {selectedBank ? selectedBank.value : preselectedBank.value}
+                    {selectedBank ? selectedBank.value : "Select a central bank"}
                   </CardTitle>
                   <CardDescription>
-                    Central Bank of {selectedBank ? selectedBank.value : preselectedBank.value}
+                    {bankData?.country && isoToCountry[bankData.country]
+                      ? `Central Bank of ${isoToCountry[bankData.country]}`
+                      : bankData?.country ? `Central Bank of ${bankData.country}` : ""}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import Link from "next/link";
 import { useData } from '@/contexts/DataContext';
 
 // A small, simplified world topojson (no Antarctica, fewer islands)
 const geoUrl =
-  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+  "data/world_map.json";
 
 // Blue scale for latitude (light to dark)
 const blueScale = [
@@ -72,10 +73,8 @@ export default function InteractiveWorldMap() {
   const { data: countryCentralBankMapping } = useData<any>("/data/central_banks/country_central_bank_mapping.json");
   const { data: centralBanksMetadata } = useData<any>("/data/central_banks/central_banks_metadata.json");
 
-  // Country name to ISO-3 code mapping
-  const countryNameToIso3: Record<string, string> = {
-    "Afghanistan": "AFG","Albania": "ALB","Algeria": "DZA","Angola": "AGO","Antarctica": "ATA","Antigua and Barbuda": "ATG","Argentina": "ARG","Armenia": "ARM","Australia": "AUS","Austria": "AUT","Azerbaijan": "AZE","Bahamas": "BHS","Bangladesh": "BGD","Belarus": "BLR","Belgium": "BEL","Belize": "BLZ","Benin": "BEN","Bhutan": "BTN","Bolivia": "BOL","Bosnia and Herz.": "BIH","Botswana": "BWA","Brazil": "BRA","Brunei": "BRN","Bulgaria": "BGR","Burkina Faso": "BFA","Burundi": "BDI","Cambodia": "KHM","Cameroon": "CMR","Canada": "CAN","Central African Rep.": "CAF","Chad": "TCD","Chile": "CHL","China": "CHN","Colombia": "COL","Congo": "COG","Costa Rica": "CRI","Croatia": "HRV","Cuba": "CUB","Cyprus": "CYP","Czechia": "CZE","Côte d'Ivoire": "CIV","Dem. Rep. Congo": "COD","Denmark": "DNK","Djibouti": "DJI","Dominican Rep.": "DOM","Ecuador": "ECU","Egypt": "EGY","El Salvador": "SLV","Eq. Guinea": "GNQ","Eritrea": "ERI","Estonia": "EST","eSwatini": "SWZ","Ethiopia": "ETH","Falkland Is.": "FLK","Fiji": "FJI","Finland": "FIN","France": "FRA","Fr. S. Antarctic Lands": "ATF","Gabon": "GAB","Gambia": "GMB","Georgia": "GEO","Germany": "DEU","Ghana": "GHA","Greece": "GRC","Greenland": "GRL","Guatemala": "GTM","Guinea": "GIN","Guinea-Bissau": "GNB","Guyana": "GUY","Haiti": "HTI","Honduras": "HND","Hungary": "HUN","Iceland": "ISL","India": "IND","Indonesia": "IDN","Iran": "IRN","Iraq": "IRQ","Ireland": "IRL","Israel": "ISR","Italy": "ITA","Jamaica": "JAM","Japan": "JPN","Jordan": "JOR","Kazakhstan": "KAZ","Kenya": "KEN","Kosovo": "XKX","Kuwait": "KWT","Kyrgyzstan": "KGZ","Laos": "LAO","Latvia": "LVA","Lebanon": "LBN","Lesotho": "LSO","Liberia": "LBR","Libya": "LBY","Lithuania": "LTU","Luxembourg": "LUX","Madagascar": "MDG","Malawi": "MWI","Malaysia": "MYS","Mali": "MLI","Mauritania": "MRT","Mexico": "MEX","Moldova": "MDA","Mongolia": "MNG","Montenegro": "MNE","Morocco": "MAR","Mozambique": "MOZ","Myanmar": "MMR","Namibia": "NAM","Netherlands": "NLD","New Caledonia": "NCL","New Zealand": "NZL","Nicaragua": "NIC","Niger": "NER","Nigeria": "NGA","North Korea": "PRK","N. Cyprus": "XNC","Norway": "NOR","Oman": "OMN","Pakistan": "PAK","Palestine": "PSE","Panama": "PAN","Papua New Guinea": "PNG","Paraguay": "PRY","Peru": "PER","Philippines": "PHL","Poland": "POL","Portugal": "PRT","Puerto Rico": "PRI","Qatar": "QAT","Romania": "ROU","Russia": "RUS","Rwanda": "RWA","Saudi Arabia": "SAU","Senegal": "SEN","Serbia": "SRB","Sierra Leone": "SLE","Slovakia": "SVK","Slovenia": "SVN","Solomon Is.": "SLB","Somalia": "SOM","Somaliland": "SML","South Africa": "ZAF","South Korea": "KOR","South Sudan": "SSD","Spain": "ESP","Sri Lanka": "LKA","Sudan": "SDN","Suriname": "SUR","Sweden": "SWE","Switzerland": "CHE","Syria": "SYR","Taiwan": "TWN","Tajikistan": "TJK","Tanzania": "TZA","Thailand": "THA","Timor-Leste": "TLS","Togo": "TGO","Trinidad and Tobago": "TTO","Tunisia": "TUN","Turkey": "TUR","Turkmenistan": "TKM","Uganda": "UGA","Ukraine": "UKR","United Arab Emirates": "ARE","United Kingdom": "GBR","United States of America": "USA","Uruguay": "URY","Uzbekistan": "UZB","Vanuatu": "VUT","Venezuela": "VEN","Vietnam": "VNM","W. Sahara": "ESH","Yemen": "YEM","Zambia": "ZMB","Zimbabwe": "ZWE"
-  };
+  // Country name to ISO-3 code mapping loaded dynamically
+  const { data: countryNameToIso3 } = useData<Record<string, string>>("/data/country_name_to_iso3.json");
 
   // Compute min/max number_of_speeches for color scale
   const { minSpeeches, maxSpeeches } = useMemo(() => {
@@ -99,7 +98,7 @@ export default function InteractiveWorldMap() {
       <ComposableMap
         projectionConfig={{ scale: 140 }}
         width={800}
-        height={400}
+        height={385}
         style={{ width: "100%", height: "auto", background: "transparent" }}
       >
         <Geographies geography={geoUrl}>
@@ -241,7 +240,13 @@ export default function InteractiveWorldMap() {
               const cbMeta = cbName && centralBanksMetadata ? centralBanksMetadata[cbName] : undefined;
               if (!cbMeta) return <>No Speeches data</>;
               return <>
-                <div className="mb-1">{cbMeta.name}</div>
+                <div className="mb-1">
+                  {cbName ? (
+                    <Link href={`/data-page?central_bank=${encodeURIComponent(cbName)}`} legacyBehavior>
+                      <a className="text-blue-700 hover:underline font-medium" target="_blank" rel="noopener noreferrer">{cbMeta.name}</a>
+                    </Link>
+                  ) : cbMeta.name}
+                </div>
                 <div className="text-sm text-zinc-700 dark:text-zinc-200 mb-1">
                   {cbMeta.number_of_speeches !== undefined
                     ? <>Speeches: <span className="font-bold">{cbMeta.number_of_speeches}</span></>
