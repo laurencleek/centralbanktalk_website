@@ -80,7 +80,7 @@ export default function RootLayout({
             <footer className="border-t border-slate-200 bg-white">
               <div className="container mx-auto px-4 py-6 flex justify-between items-center">
                 <p className="text-sm text-slate-700">
-                © 2024 Central Bank Talk.
+                © 2025 Central Bank Talk.
                 </p>
                 <div className="flex space-x-4">
                   <Link href="/about_us#privacy" className="text-sm text-slate-700 hover:text-blue-900">Privacy Policy</Link>

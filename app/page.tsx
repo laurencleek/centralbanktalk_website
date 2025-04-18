@@ -326,43 +326,7 @@ export default function Page() {
                     className="mx-auto w-full"
                   />
 
-                  <div className="relative py-4 sm:py-6 px-4 sm:px-8 bg-slate-50 rounded-lg border border-slate-100">
-                    <div className="flex flex-col gap-4">
-                      <h3 className="text-lg font-semibold text-blue-950">Data Source</h3>
-                      <p className="text-sm text-slate-600 leading-relaxed">
-                        We construct indices of pressures by applying a large language model to classify individual sentences in the central bank speeches database of the Bank of International Settlements, covering communications from more than 100 central banks worldwide.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Coverage visualization with subtle styling */}
-                  <div className="bg-white rounded-lg border border-slate-100 p-4 sm:p-8">
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-5 w-5 text-blue-950"
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                          <path d="M2 12h20" />
-                        </svg>
-                        <h3 className="text-lg font-semibold text-blue-950">Global Coverage of Central Bank Communication</h3>
-                      </div>
-                      <img
-                        src="images/speeches_coverage.png"
-                        alt="Global coverage of central bank speeches"
-                        className="w-full rounded-lg shadow-sm"
-                      />
-                    </div>
-                  </div>
-                  
+        
                 </div>
               </div>
             </div>
@@ -370,8 +334,35 @@ export default function Page() {
         </section>
               {/* Interactive World Map Section */}
         <section className="container mx-auto px-4 py-8">
-          <h2 className="text-2xl font-bold mb-4 text-blue-950 dark:text-blue-100">World Map Overview</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-7 w-7 text-blue-950"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+            <h2 className="text-2xl font-bold text-blue-950 dark:text-blue-100">Global Coverage of Central Bank Communication</h2>
+          </div>
           <InteractiveWorldMap />
+        </section>
+        {/* Data Source Section moved below map */}
+        <section className="container mx-auto px-4 pb-8">
+          <div className="relative py-4 sm:py-6 px-4 sm:px-8 bg-slate-50 rounded-lg border border-slate-100">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold text-blue-950">Data Source</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                We construct indices of pressures by applying a large language model to classify individual sentences in the central bank speeches database of the Bank of International Settlements, covering communications from more than 100 central banks worldwide.
+              </p>
+            </div>
+          </div>
         </section>
       </main>
     </div>
