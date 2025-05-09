@@ -35,6 +35,7 @@ const DynamicWordCloud = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [scriptError, setScriptError] = useState<string | null>(null);
   const [currentPeriodIndex, setCurrentPeriodIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [topicData, setTopicData] = useState<TopicData[]>([]);
@@ -44,14 +45,34 @@ const DynamicWordCloud = ({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const cloudRef = useRef<any>(null);
   const previousWordsRef = useRef(new Set<string>());
+  const mountedRef = useRef(false);
+
+  // Check if script is already loaded in the DOM
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Check if window and d3.layout.cloud already exists (script was loaded previously)
+    if (typeof window !== 'undefined' && window.d3?.layout?.cloud) {
+      setScriptLoaded(true);
+    }
+    
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Load and prepare the data
   useEffect(() => {
-    setIsClient(true);
+    if (!isClient) return;
+    
+    let isMounted = true;
     
     fetch('/data/topic_shares.json')
       .then(response => response.json())
       .then(data => {
+        if (!isMounted) return;
+        
         // Add names to topics if they don't exist (using index as a placeholder)
         const processedData = data.map((period: any) => ({
           ...period,
@@ -68,12 +89,27 @@ const DynamicWordCloud = ({
           setWordCount(processedData[0].topics.length);
         }
       })
-      .catch(error => console.error("Error loading topic data:", error));
-  }, []);
+      .catch(error => {
+        console.error("Error loading topic data:", error);
+        if (isMounted) {
+          setScriptError("Failed to load topic data");
+        }
+      });
+      
+    return () => {
+      isMounted = false;
+    };
+  }, [isClient]);
 
   // Initialize SVG once we confirm client-side rendering
   useEffect(() => {
     if (!isClient || !containerRef.current) return;
+    
+    // Clear any previous SVG on remount
+    if (containerRef.current.querySelector('svg')) {
+      containerRef.current.innerHTML = '';
+      svgRef.current = null;
+    }
     
     // Create SVG if it doesn't exist
     if (!svgRef.current) {
@@ -95,6 +131,9 @@ const DynamicWordCloud = ({
     if (!isClient || !scriptLoaded || !topicData.length || !svgRef.current) return;
 
     try {
+      // Reset cloud reference on remount or when dependencies change
+      cloudRef.current = null;
+      
       // Initialize cloud layout
       if (!cloudRef.current && window.d3?.layout?.cloud) {
         // Get the actual font used in the app (from the body)
@@ -109,7 +148,9 @@ const DynamicWordCloud = ({
           .fontWeight(600)
           .fontSize(d => calculateFontSize(d.value))
           .on('end', (words: any) => {
-            drawCloud(words);
+            if (mountedRef.current) {
+              drawCloud(words);
+            }
           });
         
         // Initial update
@@ -117,8 +158,9 @@ const DynamicWordCloud = ({
       }
     } catch (error) {
       console.error("Error initializing cloud layout:", error);
+      setScriptError("Error initializing visualization");
     }
-  }, [isClient, scriptLoaded, topicData, width, height]);
+  }, [isClient, scriptLoaded, topicData.length, width, height]);
 
   // Update words when current period index changes
   useEffect(() => {
@@ -240,6 +282,12 @@ const DynamicWordCloud = ({
     setScriptLoaded(true);
   };
 
+  // Handle script error
+  const handleScriptError = () => {
+    console.error("Failed to load d3.layout.cloud script");
+    setScriptError("Failed to load visualization script");
+  };
+
   // Toggle play/pause
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -263,11 +311,14 @@ const DynamicWordCloud = ({
   return (
     <div className="w-full mb-6">
       {/* Load the d3.layout.cloud script */}
-      <Script
-        src="/lib/external/d3.layout.cloud.js" 
-        strategy="afterInteractive" 
-        onLoad={handleScriptLoad}
-      />
+      {!scriptLoaded && (
+        <Script
+          src="/lib/external/d3.layout.cloud.js" 
+          strategy="afterInteractive" 
+          onLoad={handleScriptLoad}
+          onError={handleScriptError}
+        />
+      )}
       
       {/* Top controls - horizontal layout */}
       <div className="flex items-center justify-between mb-4">
@@ -277,7 +328,7 @@ const DynamicWordCloud = ({
             size="sm"
             className="rounded-full"
             onClick={togglePlayPause}
-            disabled={!scriptLoaded}
+            disabled={!scriptLoaded || !!scriptError}
           >
             {isPlaying ? <Pause size={16} className="mr-1" /> : <Play size={16} className="mr-1" />}
             {isPlaying ? 'Pause' : 'Play'}
@@ -295,9 +346,14 @@ const DynamicWordCloud = ({
         className={`relative w-full bg-white ${className}`}
         style={{ height }}
       >
-        {!scriptLoaded && (
+        {!scriptLoaded && !scriptError && (
           <div className="absolute inset-0 flex items-center justify-center text-slate-400">
             Loading word cloud visualization...
+          </div>
+        )}
+        {scriptError && (
+          <div className="absolute inset-0 flex items-center justify-center text-red-500">
+            {scriptError}
           </div>
         )}
       </div>

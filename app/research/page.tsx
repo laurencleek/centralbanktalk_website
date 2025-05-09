@@ -8,7 +8,32 @@ import Link from 'next/link'
 import { PageHeader } from "@/components/ui/page-header"
 import { useState } from 'react'
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { X } from 'lucide-react'
+import { X, FileText, Github, Archive, Presentation, Image, Package, ExternalLink } from 'lucide-react'
+
+// Helper function to get the appropriate icon based on download type
+const getDownloadIcon = (type: string) => {
+  const iconProps = { className: "h-4 w-4" };
+  switch (type.toLowerCase()) {
+    case 'paper':
+    case 'pdf':
+    case 'appendix':  
+      return <FileText {...iconProps} />;
+    case 'github':
+    case 'repo':
+      return <Github {...iconProps} />;
+    case 'slides':
+    case 'presentation':
+      return <Presentation {...iconProps} />;
+    case 'zip':
+    case 'archive':
+      return <Archive {...iconProps} />;
+    case 'container':
+    case 'docker':
+      return <Package {...iconProps} />;
+    default:
+      return <ExternalLink {...iconProps} />;
+  }
+};
 
 export default function ResearchPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -19,11 +44,16 @@ export default function ResearchPage() {
       category: "Paper",
       title: "How Central Bank Independence Shapes Monetary Policy Communication: A Large Language Model Application",
       authors: ["Lauren Leek", "Simeon Bischl"],
-      date: "PREPRINT NOVEMBER 2024",
-      abstract: "Although central bank communication is a core monetary policy and accountability tool for central banks, little is known about what shapes it. This paper develops and tests a theory regarding a previously unconsidered variable: central bank independence (CBI). We argue that increases in CBI alter the pressures a central bank faces, compelling them to address these pressures to maintain their reputation. We fine-tune and validate a Large Language Model (Google's Gemini) to develop novel textual indices of policy pressures regarding monetary policy communication of central banks in speeches of 100 central banks from 1997 to 2023. Employing a staggered difference-in-differences and an instrumental variable approach, we find robust evidence that an increase in independence decreases monetary pressures and increases financial pressures discussed in monetary policy communication. These results are not, as generally is assumed, confounded by general changes in communication over time or singular events, in particular, the Global Financial Crisis.",
+      date: "April 2025",
+      journal: "European Journal of Political Economy",
+      link: "https://www.sciencedirect.com/science/article/pii/S017626802500028X",
+      abstract: "Although central bank communication is a core monetary policy and accountability tool for central banks, little is known about what shapes it. This paper develops and tests a theory regarding a previously unconsidered variable: central bank independence (CBI). We argue that increases in CBI alter the pressures central banks face, compelling them to address these pressures to maintain their reputation. We fine-tune and validate a Large Language Model (Google’s Gemini) to develop novel textual indices of policy pressures regarding monetary policy communication of central banks in speeches of 100 central banks from 1997 to 2023. Employing a staggered difference-in-differences and an instrumental variable approach, we find robust evidence that an increase in independence decreases the narrow focus on price stability and increases financial pressures discussed in monetary policy communication. These results are not, as generally is assumed, confounded by general changes in communication over time or singular events, in particular, the Global Financial Crisis.",
       downloads: [
-        { type: "PDF", label: "Full Paper", url: "https://osf.io/preprints/socarxiv/yrhka" },
-        { type: "PDF", label: "Presentation Slides", url: "/papers/cbi_llm/CBI_LLM_presentation.pdf" },
+        { type: "Paper", label: "Full Paper", url: "https://www.sciencedirect.com/science/article/pii/S017626802500028X" },
+        { type: "Slides", label: "Presentation", url: "/papers/cbi_llm/CBI_LLM_presentation.pdf" },
+        { type: "Repo", label: "Replication Files", url: "https://github.com/sbischl/cbi_llm_com" },
+        { type: "Container", label: "Docker", url: "https://hub.docker.com/r/sbischl/cbi_llm_com" },
+        { type: "Appendix", label: "Online Appendix", url: "/papers/cbi_llm/Appendix_EJPE.pdf" },
       ],
       mainFigure: {
         title: "The effect of central bank independence on policy pressures",
@@ -36,7 +66,8 @@ export default function ResearchPage() {
       category: "Paper",
       title: "Agenda-Setting and Responsiveness: How National Central Banks Shape the Eurozone Agenda",
       authors: ["Lauren Leek"],
-      date: "JUNE 2024",
+      date: "June 2024",
+      link: "",
       abstract: "It has been well-established that central bank policy agendas are shaped by various factors, including the spread of ideas, individual governors' agency, and economic and political pressures. However, most responsiveness and agenda-setting studies treat central banks as relatively autonomous entities, overlooking the unique multi-layered structure of the Eurosystem, which includes both the European Central Bank (ECB) and National Central Banks (NCBs). How does this institutional setup influence responsiveness and agenda-setting dynamics within the Eurosystem? This study argues that NCBs act as intermediaries, channeling national priorities to the ECB level. Using a transformer model for topic modeling, alongside sequence and cross-sectional time-series analyses of ECB and NCB speeches from 1997 to mid-2022, I find that 'new' agenda issues are driven primarily by NCBs' informational roles, while established issues respond to pressures from member states. By revealing how institutional structure shapes issue responsiveness, I contribute to how central banks balance national pressures with broader mandates revealing how responsiveness is not uniform but influenced by hierarchical structures and internal member dynamics.",
       downloads: [],
       mainFigure: {
@@ -50,7 +81,8 @@ export default function ResearchPage() {
       category: "Paper",
       title: "Introducing Textual Measures of Central Bank Policy-Linkages Using ChatGPT",
       authors: ["Lauren Leek", "Simeon Bischl", "Maximilian Freier"],
-      date: "PREPRINT FEBRUARY 2024",
+      date: "February 2024",
+      link: "https://osf.io/preprints/socarxiv/78wnp",
       abstract: "While institutionally independent, monetary policy-makers do not operate in a vacuum. The policy choices of a central bank are intricately linked to government policies and financial markets. We present novel indices of monetary, fiscal and financial policy-linkages based on central bank communication, namely, speeches by 118 central banks worldwide from 1997 to mid-2023. Our indices measure not only instances of monetary, fiscal or financial dominance but, importantly, also identify communication that aims to coordinate monetary policy with the government and financial markets. To create our indices, we use a Large Language Model (ChatGPT 3.5-0301) and provide transparent prompt-engineering steps, considering both accuracy on the basis of a manually coded dataset as well as efficiency regarding token usage. We also test several model improvements and provide descriptive statistics of the trends of the indices over time and across central banks including correlations with political-economic variables.",
       downloads: [
         { type: "PDF", label: "Full Paper", url: "https://osf.io/preprints/socarxiv/78wnp" },
@@ -85,8 +117,18 @@ export default function ResearchPage() {
                   <div className="text-sm font-medium text-[#1a365d] mb-2 bg-amber-100/80 text-[#1a365d] px-2 py-1 rounded inline-block">
                     {paper.category}
                   </div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-[#1a365d]">{paper.title}</h2>
-                  <div className="text-sm">
+                  {paper.link ? (
+                    <Link href={paper.link} target="_blank" rel="noopener noreferrer">
+                      <h2 className="text-lg sm:text-xl font-semibold text-[#1a365d] hover:underline transition-all cursor-pointer">
+                        {paper.title}
+                      </h2>
+                    </Link>
+                  ) : (
+                    <h2 className="text-lg sm:text-xl font-semibold text-[#1a365d]">
+                      {paper.title}
+                    </h2>
+                  )}
+                  <div className="text-sm flex flex-wrap items-center">
                     {paper.authors.map((author, index) => (
                       <span key={index}>
                         <span className="font-medium text-[#4052A8] hover:text-[#1a365d] transition-colors">
@@ -97,6 +139,16 @@ export default function ResearchPage() {
                         )}
                       </span>
                     ))}
+                    <span className="text-gray-400 mx-1">•</span>
+                    <span className="text-gray-600">{paper.date}</span>
+                    
+                    {/* Display journal if available */}
+                    {paper.journal && (
+                      <>
+                        <span className="text-gray-400 mx-1">•</span>
+                        <span className="italic text-gray-600">{paper.journal}</span>
+                      </>
+                    )}
                   </div>
                   <p className="text-sm sm:text-base text-gray-600">{paper.abstract}</p>
                   <div className="flex flex-wrap gap-2">
@@ -105,9 +157,12 @@ export default function ResearchPage() {
                         key={index}
                         className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-[#4052A8]"
                         href={download.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        <Badge variant="outline" className="w-12 border-[#1a365d]">
-                          {download.type}
+                        <Badge variant="outline" className="flex items-center justify-center gap-1.5 min-w-12 border-[#1a365d] py-1">
+                          {getDownloadIcon(download.type)}
+                          <span className="sr-only sm:not-sr-only">{download.type}</span>
                         </Badge>
                         {download.label}
                       </Link>

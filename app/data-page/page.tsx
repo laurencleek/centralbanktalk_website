@@ -6,7 +6,7 @@ import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users,
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { useSearchParams, useRouter } from "next/navigation";
+// Removed useSearchParams and useRouter
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsDonutChart, Pie, Cell, Label, Sector } from "recharts"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import PolicyPressuresChart from '@/components/ui/policy-pressures-chart'
@@ -44,9 +44,14 @@ export default function DataPage() {
   const [selectedBank, setSelectedBank] = useState(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [bankData, setBankData] = useState(null);
-  const searchParams = useSearchParams();
-  const centralBankKey = searchParams.get("central_bank");
-  const router = useRouter();
+  const [centralBankKey, setCentralBankKey] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setCentralBankKey(params.get("central_bank"));
+    }
+  }, []);
+  // router removed
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const [activeSection, setActiveSection] = useState("");
@@ -130,8 +135,11 @@ export default function DataPage() {
     setSearchTerm(""); // Clear search box after selection
     setShowDropdown(false);
     await loadBankData(bank);
-    // Update the URL with the selected bank key (shallow routing)
-    router.push(`?central_bank=${encodeURIComponent(bank.key)}`, { scroll: false }, { shallow: true });
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("central_bank", bank.key);
+      window.history.replaceState({}, '', url.toString());
+    }
   }
 
   const handleSearchFocus = () => {
