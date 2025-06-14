@@ -11,18 +11,40 @@ import DynamicWordCloud from './components/dynamic-word-cloud';
 import InteractiveWorldMap from './components/InteractiveWorldMap';
 
 export default function Page() {
-  const { data, isLoading, error } = useData("data/central_banks/central_banks.json");
-  const { data: worldData } = useData("data/world_year_dom.json");
+  const { data: centralBankData, isLoading: isCentralBankDataLoading, error: centralBankError } = useData("data/central_banks/central_banks.json");
+  const { data: worldData, isLoading: isWorldDataLoading, error: worldDataError } = useData("data/world_year_dom.json");
+  const [isMapDataReady, setIsMapDataReady] = useState(false);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
+  // Process chart data safely
   const chartData = worldData ? Object.entries(worldData).map(([year, values]: [string, any]) => ({
     year: parseInt(year),
-    monetary: Number((values.monetary_dominance * 100).toFixed(2)),
-    fiscal: Number((values.fiscal_dominance * 100).toFixed(2)),
-    financial: Number((values.financial_dominance * 100).toFixed(2)),
+    monetary: Number((values?.monetary_dominance * 100 || 0).toFixed(2)),
+    fiscal: Number((values?.fiscal_dominance * 100 || 0).toFixed(2)),
+    financial: Number((values?.financial_dominance * 100 || 0).toFixed(2)),
   })).sort((a, b) => a.year - b.year) : [];
+
+  // Ensure map data is ready before rendering
+  useEffect(() => {
+    if (centralBankData && !isCentralBankDataLoading) {
+      // Additional validation to ensure data is properly structured
+      try {
+        // Perform basic validation - you could add more specific checks based on your data structure
+        if (typeof centralBankData === 'object' && centralBankData !== null) {
+          setIsMapDataReady(true);
+        }
+      } catch (e) {
+        console.error("Error validating map data:", e);
+        setIsMapDataReady(false);
+      }
+    }
+  }, [centralBankData, isCentralBankDataLoading]);
+
+  // Loading state for any data
+  if (isCentralBankDataLoading || isWorldDataLoading) return <div>Loading...</div>;
+  
+  // Error state for any error
+  if (centralBankError || worldDataError) 
+    return <div>Error: {centralBankError?.message || worldDataError?.message}</div>;
 
   // Add this function to get the last value for each metric
   const getLastValues = () => {
@@ -351,7 +373,13 @@ export default function Page() {
             </svg>
             <h2 className="text-2xl font-bold text-blue-950 dark:text-blue-100">Global Coverage of Central Bank Communication</h2>
           </div>
-          <InteractiveWorldMap />
+          {isMapDataReady ? (
+            <InteractiveWorldMap />
+          ) : (
+            <div className="flex justify-center items-center h-[400px] bg-slate-50 rounded-lg border border-slate-100">
+              <p>Preparing map data...</p>
+            </div>
+          )}
         </section>
         {/* Data Source Section moved below map */}
         <section className="container mx-auto px-4 pb-8">
