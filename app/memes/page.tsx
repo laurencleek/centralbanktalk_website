@@ -11,7 +11,8 @@ const memes = [
   { id: 2, src: "memes/supermeme_10h22_25.png", tags: ["Acemoglu", "Jackson Hole"] },
   { id: 3, src: "memes/milei_meme.png", tags: ["Milei", "Argentina", "Chainsaw"] },
   { id: 4, src: "memes/open_ai.jpeg", tags: ["AI", "Tech", "April Fool"] },
-  { id: 5, src: "memes/daron_got_rejected.jpeg", tags: ["Acemoglu", "April Fool"] }
+  { id: 5, src: "memes/daron_got_rejected.jpeg", tags: ["Acemoglu", "April Fool"] },
+  { id: 6, src: "memes/rate_hike.png", tags: ["Monetary policy", "Rate hikes"] }
 ]
 
 export default function MemesPage() {
