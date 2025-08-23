@@ -404,7 +404,7 @@ export default function DataPage() {
             content="Historical data on central bank governors and their terms of office."
             link={{
               text: "Data on Central Bank Governors (2023)",
-              href: "https://kof.ethz.ch/en/data-on-central-bank-governors.html"
+              href: "https://kof.ethz.ch/en/data/data-on-central-bank-governors.html"
             }}
           />
           <CardHeader>
@@ -470,7 +470,7 @@ export default function DataPage() {
               <p className="text-xs text-slate-500 flex items-center">
                 Source: 
                 <a 
-                  href="https://kof.ethz.ch/en/data-data-on-central-bank-governors.html" 
+                  href="https://kof.ethz.ch/en/data/data-on-central-bank-governors.html" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="ml-1 text-[hsl(var(--brand-primary))] hover:underline flex items-center"
