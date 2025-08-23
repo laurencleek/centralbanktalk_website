@@ -3,6 +3,7 @@ import Link from "next/link"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 import { InfoTooltip } from "@/components/ui/info-tooltip"
+import { ExternalLink } from "lucide-react"
 
 interface PolicyPressuresChartProps {
   bankData: {
@@ -176,8 +177,21 @@ export default function PolicyPressuresChart({ bankData }: PolicyPressuresChartP
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
-          <div className="mt-4 text-sm text-muted-foreground text-right">
-            Source: <Link href="#cbi-llm" className="text-[hsl(var(--brand-primary))] hover:underline">Leek & Bischl (2024)</Link>
+          
+          {/* Source attribution */}
+          <div className="mt-6 pt-4 border-t border-slate-200">
+            <p className="text-xs text-slate-500 flex items-center">
+              Source: 
+              <a 
+                href="https://www.sciencedirect.com/science/article/pii/S017626802500028X" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-1 text-[hsl(var(--brand-primary))] hover:underline flex items-center"
+              >
+                Leek & Bischl (2024)
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+            </p>
           </div>
         </CardContent>
       </div>

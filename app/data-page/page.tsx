@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, KeyboardEvent, useCallback } from 'react'
 import Link from "next/link"
-import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText, List, BarChart2, PieChart as PieChartIcon, TrendingUp as TrendingUpIcon, Info } from "lucide-react"
+import { ArrowLeft, MapPin, TrendingUp, PieChart, BarChart, Search, User, Users, Coins, MessageSquare, FileText, List, BarChart2, PieChart as PieChartIcon, TrendingUp as TrendingUpIcon, Info, Crown, Calendar, ExternalLink } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -106,7 +106,8 @@ export default function DataPage() {
         speakers: data.speakers || {},
         number_of_speeches: data.number_of_speeches || [],
         year: data.year || [],
-        number_of_speakers: data.number_of_speakers || 0
+        number_of_speakers: data.number_of_speakers || 0,
+        governors: data.governors || []
       })
 
     } catch (error) {
@@ -320,7 +321,7 @@ export default function DataPage() {
       }
     )
 
-    const sections = ['key-facts', 'communication-frequency', 'audience-distribution', 'policy-pressures']
+    const sections = ['key-facts', 'communication-frequency', 'audience-distribution', 'policy-pressures', 'governor-history']
     sections.forEach(id => {
       const element = document.getElementById(id)
       if (element) observer.observe(element)
@@ -334,7 +335,8 @@ export default function DataPage() {
       { id: 'key-facts', title: 'Key Facts & Topics', icon: List },
       { id: 'communication-frequency', title: 'Communication Frequency', icon: TrendingUpIcon },
       { id: 'audience-distribution', title: 'Audience Distribution', icon: PieChartIcon },
-      { id: 'policy-pressures', title: 'Policy Pressures', icon: BarChart }
+      { id: 'policy-pressures', title: 'Policy Pressures', icon: BarChart },
+      { id: 'governor-history', title: 'Governor History', icon: Crown }
     ]
 
     return (
@@ -368,9 +370,150 @@ export default function DataPage() {
     )
   }, [activeSection])
 
+  const GovernorHistoryCard = ({ governors }) => {
+    if (!governors || governors.length === 0) {
+      return (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Crown className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
+              Governor History
+            </CardTitle>
+            <CardDescription>
+              Chronological list of central bank governors
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center h-32">
+              <p className="text-muted-foreground">No governor data available</p>
+            </div>
+          </CardContent>
+        </Card>
+      )
+    }
+
+    // Sort governors by beginning of term
+    const sortedGovernors = [...governors].sort((a, b) => 
+      new Date(a.beginning_of_term) - new Date(b.beginning_of_term)
+    )
+
+    return (
+      <Card className="shadow-lg">
+        <div className="relative">
+          <InfoTooltip 
+            content="Historical data on central bank governors and their terms of office."
+            link={{
+              text: "Data on Central Bank Governors (2023)",
+              href: "https://kof.ethz.ch/en/data-on-central-bank-governors.html"
+            }}
+          />
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Crown className="mr-2 h-5 w-5 text-[hsl(var(--brand-primary))]" />
+              Governor History
+            </CardTitle>
+            <CardDescription>
+              Chronological list of central bank governors and their terms
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {sortedGovernors.map((governor, index) => (
+                <div 
+                  key={`${governor.governor}-${governor.beginning_of_term}`}
+                  className="relative border-l-2 border-blue-200 pl-6 pb-4 last:pb-0"
+                >
+                  {/* Timeline dot */}
+                  <div className="absolute left-[-5px] top-2 w-3 h-3 bg-[hsl(var(--brand-primary))] rounded-full"></div>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-slate-900">
+                          {governor.governor}
+                        </h4>
+                        {governor.acting && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                            Acting
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center text-sm text-slate-600 mt-1">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span>
+                          {formatDate(governor.beginning_of_term)} - {formatDate(governor.end_of_term)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-slate-700">
+                          Tenure
+                        </div>
+                        <div className="text-sm text-slate-600">
+                          {calculateTenure(governor.beginning_of_term, governor.end_of_term)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Source attribution */}
+            <div className="mt-6 pt-4 border-t border-slate-200">
+              <p className="text-xs text-slate-500 flex items-center">
+                Source: 
+                <a 
+                  href="https://kof.ethz.ch/en/data-data-on-central-bank-governors.html" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="ml-1 text-[hsl(var(--brand-primary))] hover:underline flex items-center"
+                >
+                  Data on Central Bank Governors (2023)
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </a>
+              </p>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+    )
+  }
+
+  // Helper functions
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Present'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
+  const calculateTenure = (startDate, endDate) => {
+    const start = new Date(startDate)
+    const end = endDate ? new Date(endDate) : new Date()
+    const diffTime = Math.abs(end - start)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const years = Math.floor(diffDays / 365)
+    const months = Math.floor((diffDays % 365) / 30)
+    
+    if (years > 0 && months > 0) {
+      return `${years}y ${months}m`
+    } else if (years > 0) {
+      return `${years}y`
+    } else {
+      return `${months}m`
+    }
+  }
+
+  // Loading and error states
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
 
+  // Data processing (ONLY ONCE)
   const communicationData = getCommunicationData(
     bankData?.year || [],
     bankData?.number_of_speeches || []
@@ -402,7 +545,7 @@ export default function DataPage() {
       />
       <div className="section-container">
         <div className="mb-8">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-4">
             <Link 
               href="#key-facts" 
               className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
@@ -430,6 +573,13 @@ export default function DataPage() {
             >
               <BarChart className="h-6 w-6 text-[hsl(var(--brand-primary))]" />
               <span className="text-sm font-medium text-gray-700">Policy Pressures</span>
+            </Link>
+            <Link 
+              href="#governor-history" 
+              className="flex flex-col items-center p-4 space-y-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
+            >
+              <Crown className="h-6 w-6 text-[hsl(var(--brand-primary))]" />
+              <span className="text-sm font-medium text-gray-700">Governor History</span>
             </Link>
           </div>
         </div>
@@ -668,6 +818,12 @@ export default function DataPage() {
                 <Card className="shadow-lg">
                   <PolicyPressuresChart bankData={bankData} />
                 </Card>
+              </div>
+            )}
+
+            {bankData && (
+              <div id="governor-history">
+                <GovernorHistoryCard governors={bankData.governors} />
               </div>
             )}
 
