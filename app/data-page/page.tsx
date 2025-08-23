@@ -417,47 +417,52 @@ export default function DataPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {sortedGovernors.map((governor, index) => (
-                <div 
-                  key={`${governor.governor}-${governor.beginning_of_term}`}
-                  className="relative border-l-2 border-blue-200 pl-6 pb-4 last:pb-0"
-                >
-                  {/* Timeline dot */}
-                  <div className="absolute left-[-5px] top-2 w-3 h-3 bg-[hsl(var(--brand-primary))] rounded-full"></div>
-                  
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold text-slate-900">
-                          {governor.governor}
-                        </h4>
-                        {governor.acting && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                            Acting
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center text-sm text-slate-600 mt-1">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>
-                          {formatDate(governor.beginning_of_term)} - {formatDate(governor.end_of_term)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-slate-700">
-                          Tenure
+            <div className="relative">
+              {/* Continuous timeline line */}
+              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200"></div>
+              
+              <div className="space-y-3">
+                {sortedGovernors.map((governor, index) => (
+                  <div 
+                    key={`${governor.governor}-${governor.beginning_of_term}`}
+                    className="relative pl-10 pb-3"
+                  >
+                    {/* Timeline dot */}
+                    <div className="absolute left-[11px] top-1 w-2.5 h-2.5 bg-[hsl(var(--brand-primary))] rounded-full border-2 border-white shadow-sm"></div>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-slate-900">
+                            {governor.governor}
+                          </h4>
+                          {governor.acting && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                              Acting
+                            </span>
+                          )}
                         </div>
-                        <div className="text-sm text-slate-600">
-                          {calculateTenure(governor.beginning_of_term, governor.end_of_term)}
+                        <div className="flex items-center text-sm text-slate-600 mt-1">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          <span>
+                            {formatDate(governor.beginning_of_term)} - {formatDate(governor.end_of_term)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-slate-700">
+                            Tenure
+                          </div>
+                          <div className="text-sm text-slate-600">
+                            {calculateTenure(governor.beginning_of_term, governor.end_of_term)}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
             
             {/* Source attribution */}
