@@ -12,16 +12,39 @@ const memes = [
   { id: 3, src: "memes/milei_meme.png", tags: ["Milei", "Argentina", "Chainsaw"] },
   { id: 4, src: "memes/open_ai.jpeg", tags: ["AI", "Tech", "April Fool"] },
   { id: 5, src: "memes/daron_got_rejected.jpeg", tags: ["Acemoglu", "April Fool"] },
-  { id: 6, src: "memes/rate_hike.png", tags: ["Monetary policy", "Rate hikes"] }
+  { id: 6, src: "memes/rate_hike.png", tags: ["Monetary policy", "Rate hikes", "Ghibli"] }
 ]
 
 export default function MemesPage() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   
-  // Get all unique tags
-  const allTags = Array.from(
-    new Set(memes.flatMap(meme => meme.tags))
-  ).sort();
+  // Count occurrences of each tag
+  const tagCount = memes.reduce((acc, meme) => {
+    meme.tags.forEach(tag => {
+      acc[tag] = (acc[tag] || 0) + 1;
+    });
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Create array of [tag, count] pairs and sort them
+  const sortedTags = Object.entries(tagCount)
+    .sort((a, b) => {
+      // Sort by count (descending)
+      if (b[1] !== a[1]) {
+        return b[1] - a[1];
+      }
+      // Then alphabetically
+      return a[0].localeCompare(b[0]);
+    });
+  
+  // Simplified tag styling with more subtle colors and decreased spacing
+  const getTagStyle = (isSelected: boolean = false) => {
+    return {
+      default: `bg-slate-100 text-slate-700`,
+      selected: isSelected ? 'shadow-sm ring-1 ring-slate-300 ring-offset-1' : '',
+      badge: `text-slate-600`
+    };
+  };
   
   // Filter memes based on selected tag
   const filteredMemes = selectedTag 
@@ -39,24 +62,31 @@ export default function MemesPage() {
       <main className="section-container">
         {/* Tag Filter */}
         <div className="max-w-2xl mx-auto mb-8">
-          <div className="flex flex-wrap items-center gap-2 justify-center">
+          <div className="flex flex-wrap items-center gap-1.5 justify-center">
             <span className="text-sm font-medium">Filter by tag:</span>
             {selectedTag ? (
               <button 
                 onClick={() => setSelectedTag(null)}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium shadow-sm transition-all duration-200 ${getTagStyle(true).default} ${getTagStyle(true).selected}`}
               >
-                {selectedTag} <X size={14} />
+                {selectedTag} 
+                <span className="ml-0.5 text-xs font-medium ${getTagStyle().badge}">
+                  ({tagCount[selectedTag]})
+                </span>
+                <X size={13} className="ml-0.5" />
               </button>
             ) : (
-              <div className="flex flex-wrap gap-2 justify-center">
-                {allTags.map(tag => (
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                {sortedTags.map(([tag, count]) => (
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
-                    className="px-3 py-1 bg-gray-100 hover:bg-blue-100 rounded-full text-sm"
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-sm ${getTagStyle().default}`}
                   >
                     {tag}
+                    <span className="text-xs font-medium ${getTagStyle().badge}">
+                      ({count})
+                    </span>
                   </button>
                 ))}
               </div>
@@ -94,20 +124,22 @@ export default function MemesPage() {
               </div>
               
               {/* Tags Display */}
-              <div className="flex flex-wrap justify-center gap-2">
-                {meme.tags.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      selectedTag === tag 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
+              <div className="flex flex-wrap justify-center gap-1.5">
+                {meme.tags.map(tag => {
+                  const isSelected = selectedTag === tag;
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => setSelectedTag(tag)}
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${getTagStyle().default} ${getTagStyle(isSelected).selected}`}
+                    >
+                      {tag}
+                      <span className="text-xs font-medium ${getTagStyle().badge}">
+                        ({tagCount[tag]})
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
